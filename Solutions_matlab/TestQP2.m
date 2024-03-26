@@ -19,4 +19,7 @@ bbar = [-bl; bu; -l; u];
 
 %% Solve QP using primal active-set algorithm
 [x,lambda,Wset,it] = qpsolverActiveSet(H,g,Abar,bbar,x0);
-x,Wset,it
+x,Wset,it 
+
+
+
