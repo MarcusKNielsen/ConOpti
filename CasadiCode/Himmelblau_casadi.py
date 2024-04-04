@@ -1,12 +1,13 @@
 from casadi import *
 
+
 # Declare variables
 x = SX.sym("x", 2)
 
 # Form the NLP
-f = (x[0]**2 + x[1] - 11)**2 + (x[0] + x[1]**2 -7)**2  # Objective
-g1 = (x[0])**2 - x[1]  # Original constraint
-g2 = 4*x[0] + 10*x[1]  # New constraint: 4x1 + 10x2 >= 0
+f = -(x[0]**2 + x[1] - 11)**2 - (x[0] + x[1]**2 -7)**2  # Objective
+g1 = (x[0]+2)**2 - x[1]  # Original constraint
+g2 = -4*x[0] + 10*x[1]  # New constraint: 4x1 + 10x2 >= 0
 
 
 # Combine constraints into a vector
@@ -23,7 +24,7 @@ opts = {}
 solver = nlpsol("solver", MySolver, nlp, opts)
 
 # Define the initial guess
-x0 = [1, 1]  # Example initial guess
+x0 = [3.14, 1.46]  # Example initial guess
 
 # Solve the NLP with inequality constraints
 lbg = [0, 0]  # Lower bounds for g1 and g2
