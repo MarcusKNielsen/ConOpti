@@ -18,7 +18,9 @@ nlp = {'x': x, 'f': f, 'g': g}
 # Pick an NLP solver
 MySolver = "ipopt"
 # Solver options
-opts = {}
+opts = {
+    'ipopt':{'tol': 1e-6}
+}
 
 # Allocate a solver
 solver = nlpsol("solver", MySolver, nlp, opts)
@@ -37,3 +39,7 @@ print("primal solution = ", sol["x"])
 print("dual solution (x) = ", sol["lam_x"])
 print("dual solution (g) = ", sol["lam_g"])
 
+
+
+
+    
