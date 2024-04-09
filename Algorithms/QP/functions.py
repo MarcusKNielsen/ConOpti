@@ -1,26 +1,22 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.sparse import spdiags, eye, kron
+from scipy.sparse import spdiags, eye, kron 
 from scipy.linalg import lu, solve, ldl, solve_triangular, qr, lu_factor, lu_solve
+from scipy.sparse.linalg import splu
 
 def construct_matrix(rows,cols,procent15):
 
-    determinant_not_zero = False
 
-    while not determinant_not_zero:
+    A = np.zeros([rows,cols])
 
-        A = np.zeros([rows,cols])
-
-        # Generated random indicies for non zero elements
-        nonzero_indicies = np.random.choice(rows*cols,procent15,replace=False)
-        for index in nonzero_indicies:     
-            row = index // cols    
-            col = index % cols    
-            # Assigning standard normal distributed values to non zero indicies
-            A[row, col] = np.random.normal(0,1)
-        
-        determinant_not_zero = np.linalg.det(A) != 0
+    # Generated random indicies for non zero elements
+    nonzero_indicies = np.random.choice(rows*cols,procent15,replace=False)
+    for index in nonzero_indicies:     
+        row = index // cols    
+        col = index % cols    
+        # Assigning standard normal distributed values to non zero indicies
+        A[row, col] = np.random.normal(0,1)
 
     return A
 
@@ -31,11 +27,12 @@ def constructQP(n,alpha):
     x_star      = np.random.normal(0,1,size=n)
     lamb_star   = np.random.normal(0,1,size=m)
     procent15   = int(n*m*0.15) # This number of values have to be non zero
-
+    
     A = construct_matrix(n,m,procent15)
     M = construct_matrix(n,n,procent15)
     H = M@M.T + alpha*np.eye(n)
 
+    # Sometimes KKT is singular !!! Makes problem
     KKT_mat = np.block([[H, -A], [-A.T, np.zeros((m, m))]])
 
     rhs = KKT_mat@np.block([x_star,lamb_star])
@@ -65,10 +62,22 @@ def EqualityQPSolverLUdense(H, g, A, b):
     lu, piv = lu_factor(KKT_mat)
     sol = lu_solve((lu,piv),rhs)
 
-    x = sol[:n] # måske +1
+    x = sol[:n]
     lam = sol[n:]
 
     return x,lam
+
+def EqualityQPSolverLUsparse(H, g, A, b):
+    
+    KKT_mat, rhs, n = construct_KKT(H, g, A, b)
+    
+    LU_decomp = splu(KKT_mat)
+    sol = LU_decomp.solve(rhs)
+
+    x = sol[:n]
+    lam = sol[n:]
+
+    return x,lam 
 
 
 def EqualityQPSolverLDLdense(H, g, A, b):
@@ -125,7 +134,7 @@ def EqualityQPSolver(H,g,A,b,solver):
     elif solver == "Rangespace":
         x,lam = EqualityQPSolverRANGESPACE(H, g, A, b)
     elif solver == "LUsparse":
-        False
+        x,lam = EqualityQPSolverLUsparse(H, g, A, b)
     elif solver == "LDLsparse":
         False
 
