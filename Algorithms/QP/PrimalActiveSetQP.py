@@ -18,7 +18,7 @@ def EqualityQPSolver(H,g,A,b):
     y = np.hstack([-g,-b])
     
     z = solve(KKT,y)
-    x = z[:n]
+    x = z[:n] 
     lambdas = z[n:]
     return x, lambdas
 
