@@ -4,9 +4,9 @@ import numpy as np
 from scipy.sparse import spdiags, eye, kron 
 from scipy.linalg import lu, solve, ldl, solve_triangular, qr, lu_factor, lu_solve
 from scipy.sparse.linalg import splu
+from numpy.linalg import inv
 
 def construct_matrix(rows,cols,procent15):
-
 
     A = np.zeros([rows,cols])
 
@@ -139,6 +139,23 @@ def EqualityQPSolver(H,g,A,b,solver):
         False
 
     return x,lam
+
+def sensitivity(H,A):
+
+    n, m = A.shape
+
+    res_g = np.block([[np.array(np.identity(n))],[np.array(np.zeros((m,n)))]])
+    res_b = np.block([[np.array(np.zeros((n,m)))],[np.array(np.identity(m))]])
+
+    Mat = -inv(np.block([[H, -A], [-A.T, np.zeros((m, m))]]))
+
+    resg = Mat@res_g 
+    resb = Mat@res_b 
+
+    return resg,resb
+
+
+
 
 
 
