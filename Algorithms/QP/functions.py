@@ -5,6 +5,7 @@ from scipy.sparse import spdiags, eye, kron
 from scipy.linalg import lu, solve, ldl, solve_triangular, qr, lu_factor, lu_solve
 from scipy.sparse.linalg import splu
 from numpy.linalg import inv
+import math
 
 def construct_matrix(rows,cols,procent15):
 
@@ -14,7 +15,8 @@ def construct_matrix(rows,cols,procent15):
     nonzero_indicies = np.random.choice(rows*cols,procent15,replace=False)
     for index in nonzero_indicies:     
         row = index // cols    
-        col = index % cols    
+        col = index % cols 
+
         # Assigning standard normal distributed values to non zero indicies
         A[row, col] = np.random.normal(0,1)
 
@@ -22,8 +24,8 @@ def construct_matrix(rows,cols,procent15):
 
 def constructQP(n,alpha):
 
-    beta        = np.random.uniform(0,1) 
-    m           = int(np.round(beta*n))
+    beta        = 0.8
+    m           = int(beta*n) 
     x_star      = np.random.normal(0,1,size=n)
     lamb_star   = np.random.normal(0,1,size=m)
     procent15   = int(n*m*0.15) # This number of values have to be non zero
@@ -32,15 +34,14 @@ def constructQP(n,alpha):
     M = construct_matrix(n,n,procent15)
     H = M@M.T + alpha*np.eye(n)
 
-    # Sometimes KKT is singular !!! Makes problem
     KKT_mat = np.block([[H, -A], [-A.T, np.zeros((m, m))]])
 
     rhs = KKT_mat@np.block([x_star,lamb_star])
 
-    g = rhs[:len(x_star)] # måske -1 
-    b = rhs[len(x_star):]
+    g = -1*rhs[:len(x_star)]
+    b = -1*rhs[len(x_star):]
 
-    return H, g, A, b, x_star,lamb_star,rhs
+    return H, g, A, b, x_star,lamb_star,rhs 
 
 def construct_KKT(H, g, A, b):
 
@@ -54,10 +55,6 @@ def construct_KKT(H, g, A, b):
 def EqualityQPSolverLUdense(H, g, A, b):
 
     KKT_mat, rhs, n = construct_KKT(H, g, A, b)
-
-    #P,L,U = lu(KKT_mat)
-    #Y = solve_triangular(P@L,rhs,lower=True)
-    #sol = solve_triangular(U,Y)
 
     lu, piv = lu_factor(KKT_mat)
     sol = lu_solve((lu,piv),rhs)
@@ -84,10 +81,6 @@ def EqualityQPSolverLDLdense(H, g, A, b):
 
     KKT_mat, rhs, n = construct_KKT(H, g, A, b)
 
-    #L,D,perm = ldl(KKT_mat)
-    #Y = solve_triangular(L,rhs,lower=True)
-    #sol = solve_triangular(D@L.T,Y)
-
     L,D,perm = ldl(KKT_mat,lower=True)
     rhs_permuted = rhs[perm]
     Y = solve(L,rhs_permuted)
@@ -97,7 +90,6 @@ def EqualityQPSolverLDLdense(H, g, A, b):
     lam = sol[n:]
 
     return x,lam
-
 
 def EqualityQPSolverNULLSPACE(H, g, A, b):
 
@@ -112,7 +104,6 @@ def EqualityQPSolverNULLSPACE(H, g, A, b):
     lam = solve_triangular(R,Q1.T@(H@x+g))
 
     return x,lam
-
 
 def EqualityQPSolverRANGESPACE(H, g, A, b):
     # Only good for small systems because the use of inverse of H

@@ -101,7 +101,7 @@ def plotHimmelblau(X):
 #%% SQP algorithm
 
 from numpy.linalg import norm
-from QP.InteriorPointQP import InteriorPointQP, InitialPointQP, plotQP
+from InteriorPointQP import InteriorPointQP, InitialPointQP, plotQP
 
 
 def check_optimality(xk,Jac_fk,zk,gk,Jac_gk):
@@ -136,7 +136,6 @@ X = np.zeros([MaxIter+1,len(x)])
 X[k,:] = xk
 while not converged and k < MaxIter:
     
-
     # Solve QP sub-problem
     H = Hes_fk - z[0] * Hes_gk[:,:,0] - z[1] * Hes_gk[:,:,1]
     grad = Jac_fk
@@ -161,7 +160,6 @@ while not converged and k < MaxIter:
     
     alpha = 1
     c = fk 
-    
     
     xk += dx
     zk  = results['lagrange_ineq']
