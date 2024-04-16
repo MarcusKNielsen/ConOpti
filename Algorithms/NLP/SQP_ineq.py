@@ -101,7 +101,7 @@ def plotHimmelblau(X):
 #%% SQP algorithm
 
 from numpy.linalg import norm
-from InteriorPointQP import InteriorPointQP, InitialPointQP, plotQP
+from QP.InteriorPointQP import InteriorPointQP, InitialPointQP, plotQP
 
 
 def check_optimality(xk,Jac_fk,zk,gk,Jac_gk):
