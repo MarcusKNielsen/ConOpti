@@ -4,7 +4,7 @@ from numpy.linalg import norm
 
 """
 
-Primal-Dual Predictor-Corrector Interior Point Quadratic Programming algorithm
+Primal-Dual Predictor-Corrector Interior Point Quadratic Programming Algorithm
 
 min 0.5 x' H x + g' x
 subject to A' x  = b
@@ -178,7 +178,7 @@ Helper function able to plot QP problems for visualization.
 See InteriorPointQP_test for example
 
 """
-def plotQP(H,g,C,d,X):
+def plotQP(H,g,C,d,X=None,xlimits=None):
     
     def objective(x1, x2):
 
@@ -187,9 +187,12 @@ def plotQP(H,g,C,d,X):
         
         return quadratic_term + linear_term
     
-    # Bounds for x1 and x2
-    x1min, x1max = -10, 10
-    x2min, x2max = -10, 10
+    if xlimits == None:
+        # Bounds for x1 and x2
+        x1min, x1max = -10, 10
+        x2min, x2max = -10, 10
+    else:
+        x1min, x1max, x2min, x2max = xlimits
     
     # Create a grid of points.
     x1, x2 = np.meshgrid(np.linspace(x1min, x1max, 400), np.linspace(x2min, x2max, 400))
@@ -229,10 +232,11 @@ def plotQP(H,g,C,d,X):
     plt.xlim([x1min, x1max])
     plt.ylim([x2min, x2max])
     
-    x1, x2 = X[:,0], X[:,1]
-    plt.plot(x1[0],x2[0],"x",color="red",markersize=15)
-    plt.plot(x1,x2,"-o",color="red")
-    
+    if (X != None).all():
+        x1, x2 = X[:,0], X[:,1]
+        plt.plot(x1[0],x2[0],"x",color="red",markersize=15,label=r"$x_0$: initial point")
+        plt.plot(x1,x2,"-o",color="red")
+        plt.legend()
     
     # Show the plot.
     plt.show()
