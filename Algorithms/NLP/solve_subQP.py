@@ -27,11 +27,12 @@ def create_modified_QP(Bk,Jac_fk,gk,Jac_gk, x0 = None):
     else:
         p = np.ones(n_var)
         
-    small_val = 0.1
-    v = small_val*np.ones(n_eq)
-    w = small_val*np.ones(n_eq)
-    t = small_val*np.ones(n_ineq)
 
+    v = np.ones(n_eq)
+    w = np.ones(n_eq)
+    t = np.ones(n_ineq) + np.abs(Jac_gk @ p - gk) #(Jac_gk @ p - gk >= -t).all()
+    
+    
     x = np.block([p,v,w,t])
     
     # Setup Hessian

@@ -6,7 +6,7 @@ from InteriorPointQP import plotQP
 
 from QP_Examples import QP_example
 
-H,g,C,d,x = QP_example(1)
+H,g,C,d,x = QP_example(3)
 
 
 # Objective function
