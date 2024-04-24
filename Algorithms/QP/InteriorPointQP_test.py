@@ -1,5 +1,5 @@
 """
-Implementation of Primal-Dual Predictor-Corrector Interior-Point Algorithm
+Test of Primal-Dual Predictor-Corrector Interior-Point Algorithm
 """
 import numpy as np
 from scipy.linalg import lu, solve, ldl, solve_triangular,qr,inv
@@ -7,12 +7,10 @@ from numpy.linalg import norm
 from InteriorPointQP import InteriorPointQP, plotQP
 
 # Initial point
-#x = np.array([1.2,1.5])
-#x = np.array([3.0,1.0])
-#x = np.array([0.0,0.0])
-#x = np.array([2.0,2.0])
-x = np.array([0.1,0.1])
-#x = np.array([4.0,1.0])
+x1 = 7.5
+x2 = 7.5
+x = np.array([x1,x2],dtype=np.float64)
+
 
 # objective function
 H = np.array([[20.88, 15.6 ],[15.6 , 17.48]])
