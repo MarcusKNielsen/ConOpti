@@ -6,11 +6,10 @@ import numpy as np
 from InteriorPointLP import InteriorPointLP, plotLP
 
 
-
 # objective function
 from LP_Examples import LP_example
 
-example = 3
+example = 1
 g,C,d,x,xlimits = LP_example(example,PrintFormat=True)
 
 # equality constraints

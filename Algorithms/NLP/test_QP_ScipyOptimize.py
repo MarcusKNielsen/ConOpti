@@ -6,7 +6,8 @@ from InteriorPointQP import plotQP
 
 from QP_Examples import QP_example
 
-H,g,C,d,x = QP_example(3)
+example = 3
+H,g,C,d,x = QP_example(example)
 
 
 # Objective function
@@ -34,4 +35,4 @@ result = minimize(objective, x, method='trust-constr', constraints=constraints, 
 print("Optimal x:", result.x)
 xmin = result.x
 X = np.array([x,result.x])
-plotQP(H,g,C,d,X,title="Scipy Optimize")
+plotQP(H,g,C,d,X,title=f"Scipy Optimize: Example {example}")

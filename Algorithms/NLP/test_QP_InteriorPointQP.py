@@ -6,7 +6,8 @@ from InteriorPointQP import InteriorPointQP, plotQP
 # objective function
 from QP_Examples import QP_example
 
-H,g,C,d,x = QP_example(3)
+example = 1
+H,g,C,d,x = QP_example(example)
 
 # equality constraints
 A = np.zeros([len(x),0])
@@ -28,6 +29,6 @@ X = res['x_array']
 x0 = X[0,:]
 xmin = res['xmin']
 
-plotQP(H,g,C,d,X,title="InteriorPointQP")
+plotQP(H,g,C,d,X,title=f"InteriorPointQP: Example {example}")
 
 

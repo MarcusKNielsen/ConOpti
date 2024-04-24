@@ -137,8 +137,8 @@ import matplotlib.pyplot as plt
 
 """
 
-Helper function able to plot QP problems for visualization.
-See InteriorPointQP_test for example
+Helper function able to plot LP problems for visualization.
+See test_LP_InteriorPointLP for example
 
 """
 def plotLP(g,C,d,X=None,xlimits=None,title=None):
