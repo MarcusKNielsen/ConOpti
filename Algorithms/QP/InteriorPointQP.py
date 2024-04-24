@@ -178,7 +178,8 @@ Helper function able to plot QP problems for visualization.
 See InteriorPointQP_test for example
 
 """
-def plotQP(H,g,C,d,X=None,xlimits=None):
+def plotQP(H,g,C,d,X=None,xlimits=None,title=None):
+    
     
     def objective(x1, x2):
 
@@ -218,7 +219,7 @@ def plotQP(H,g,C,d,X=None,xlimits=None):
     plt.figure()
     
     # Plot the objective function.
-    cs = plt.contourf(x1, x2, z, levels=40, cmap='viridis')
+    cs = plt.contourf(x1, x2, z, levels=20, cmap='viridis')
     plt.contour(cs, colors='k')
     plt.colorbar(cs)
     
@@ -232,10 +233,11 @@ def plotQP(H,g,C,d,X=None,xlimits=None):
     plt.xlim([x1min, x1max])
     plt.ylim([x2min, x2max])
     
-    if (X != None).all():
+    if X is not None:
         x1, x2 = X[:,0], X[:,1]
         plt.plot(x1[0],x2[0],"x",color="red",markersize=15,label=r"$x_0$: initial point")
         plt.plot(x1,x2,"-o",color="red")
+        plt.title(title)
         plt.legend()
     
     # Show the plot.
