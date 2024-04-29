@@ -23,11 +23,11 @@ def solveQP(H, g, C, d):
     obj = 0.5 * ca.mtimes([x.T, H, x]) + ca.mtimes(g.T, x)
 
     # Constraints
-    ineq_constraints = ca.mtimes(C, x) - d
+    ineq_constraints = ca.mtimes(C.T, x) - d
 
     # Setting up the QP
     qp = {'x': x, 'f': obj, 'g': ca.vertcat(ineq_constraints)}
-    opts = {'print_time': 0}
+    opts = {'print_time': 0, 'printLevel': 'none'}
 
     # Creating a QP solver
     solver = ca.qpsol('solver', 'qpoases', qp, opts)
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     import numpy as np
     H = np.array([[2, 0], [0, 2]])
     g = np.array([-1, -1])
-    C = np.array([[1, -1]])
+    C = np.array([[1],[-1]])
     d = np.array([-0.5])
     
     

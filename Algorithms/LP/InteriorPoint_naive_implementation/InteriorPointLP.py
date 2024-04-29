@@ -4,11 +4,11 @@ from numpy.linalg import norm
 
 """
 
-Primal-Dual Predictor-Corrector Interior Point Quadratic Programming Algorithm
+Primal-Dual Predictor-Corrector Interior Point Linear Programming Algorithm
 
-min 0.5 x' H x + g' x
-subject to A' x  = b
-           C' x >= d 
+    min  g' x
+    s.t  A' x  = b
+         C' x >= d 
 
 x: variable we want to find
 y: equality constraint lagrange multiplier
@@ -23,7 +23,7 @@ x0 should be an interior point, it must not be on the boundary.
 """
 
 
-def InteriorPointQP(H,g,A,b,C,d,x0,y0,z0,s0,MaxIter = 100, tol = 10**(-6)):
+def InteriorPointLP(g,A,b,C,d,x0,y0,z0,s0,MaxIter = 100, tol = 10**(-6)):
     
     x,y,z,s = x0,y0,z0,s0
     
@@ -32,7 +32,7 @@ def InteriorPointQP(H,g,A,b,C,d,x0,y0,z0,s0,MaxIter = 100, tol = 10**(-6)):
         return norm(r,np.inf) < tol
     
     # Calculate residuals
-    r_L  = H @ x + g - A @ y - C @ z
+    r_L  = g - A @ y - C @ z
     r_A  = b - A.T @ x
     r_C  = s + d - C.T @ x
     r_sz = s*z
@@ -49,7 +49,7 @@ def InteriorPointQP(H,g,A,b,C,d,x0,y0,z0,s0,MaxIter = 100, tol = 10**(-6)):
     while converged == False and k < MaxIter:
         
         # Compute H_bar and setup KKT system
-        H_bar = H + C @ np.diag(z/s) @ C.T
+        H_bar = C @ np.diag(z/s) @ C.T
         m = A.shape[1]
         KKT = np.block([[H_bar, -A],[-A.T, np.zeros([m,m])]])
         
@@ -107,7 +107,7 @@ def InteriorPointQP(H,g,A,b,C,d,x0,y0,z0,s0,MaxIter = 100, tol = 10**(-6)):
         s += alpha_bar * ds
         
         # Calculate residuals
-        r_L  = H @ x + g - A @ y - C @ z
+        r_L  = g - A @ y - C @ z
         r_A  = b - A.T @ x
         r_C  = s + d - C.T @ x
         r_sz = s*z
@@ -130,43 +130,6 @@ def InteriorPointQP(H,g,A,b,C,d,x0,y0,z0,s0,MaxIter = 100, tol = 10**(-6)):
     
     return results
 
-"""
-Heuristic Algorithm for finding Initial Point for Interior Point QP algorithm
-"""
-
-
-def InitialPointQP(H,g,A,b,C,d,x,y,z,s):
-     
-    r_L  = H @ x + g - A @ y - C @ z
-    r_A  = b - A.T @ x
-    r_C  = s + d - C.T @ x
-    r_sz = s*z
-    
-    H_bar = H + C @ np.diag(z/s) @ C.T
-    m = A.shape[1]
-    KKT = np.block([[H_bar, -A],[-A.T, np.zeros([m,m])]])
-    
-    L, D, perm = ldl(KKT)
-    
-    # Compute affine direction
-    r_L_bar = r_L - C @ np.diag(z/s) @ (r_C - r_sz/z)
-    rhs = (-1)*np.block([r_L_bar, r_A])
-    rhs2 = solve_triangular(L[perm,:], rhs[perm],lower=True)
-    res = solve_triangular(D @ L[perm,:].T, rhs2)[perm]
-    dx_aff = res[:len(x)]
-    dy_aff = res[len(x):]
-    
-    dz_aff = (-1)*np.diag(z/s) @ C.T @ dx_aff + np.diag(z/s) @ (r_C - r_sz/z)
-    ds_aff = - r_sz/z - (s * dz_aff)/z
-    
-    z += dz_aff
-    s += ds_aff
-    
-    z = np.maximum(1, np.abs(z))
-    s = np.maximum(1, np.abs(s))
-    
-    return x,y,z,s
-
 
 #%%
 
@@ -174,19 +137,18 @@ import matplotlib.pyplot as plt
 
 """
 
-Helper function able to plot QP problems for visualization.
-See InteriorPointQP_test for example
+Helper function able to plot LP problems for visualization.
+See test_LP_InteriorPointLP for example
 
 """
-def plotQP(H,g,C,d,X=None,xlimits=None,title=None):
+def plotLP(g,C,d,X=None,xlimits=None,title=None):
     
     
     def objective(x1, x2):
 
-        quadratic_term = 0.5 * (H[0, 0] * x1**2 + 2 * H[0, 1] * x1 * x2 + H[1, 1] * x2**2)
         linear_term = g[0] * x1 + g[1] * x2
         
-        return quadratic_term + linear_term
+        return linear_term
     
     if xlimits == None:
         # Bounds for x1 and x2
