@@ -10,7 +10,7 @@ from casadi import *
 A = Sparsity.dense(3, 2)
 
 # Create solver
-solver = conic('solver', 'qpoases', {'a':A})
+solver = conic('solver', 'qpoases', {'a':A}) 
 #solver = conic('solver', 'clp', {'a':A}) # Use clp
 
 g = DM([3,4])

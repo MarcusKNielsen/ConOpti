@@ -41,7 +41,7 @@ def constructQP(n,alpha):
     g = -1*rhs[:len(x_star)]
     b = -1*rhs[len(x_star):]
 
-    return H, g, A, b, x_star,lamb_star,rhs 
+    return H, g, A, b, x_star,lamb_star 
 
 def construct_KKT(H, g, A, b):
 

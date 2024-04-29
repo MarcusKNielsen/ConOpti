@@ -7,11 +7,11 @@ from numpy.linalg import norm
 from InteriorPointQP import InteriorPointQP, plotQP
 
 # Initial point
-#x = np.array([1.2,1.5])
-#x = np.array([3.0,1.0])
+#x = np.array([1.2,1.5]) 
+x = np.array([3.0,1.0])
 #x = np.array([0.0,0.0])
-#x = np.array([2.0,2.0])
-x = np.array([0.1,0.1])
+x = np.array([2.0,2.0])
+#x = np.array([0.1,0.1])
 #x = np.array([4.0,1.0])
 
 # objective function

@@ -136,7 +136,7 @@ Heuristic Algorithm for finding Initial Point for Interior Point QP algorithm
 
 
 def InitialPointQP(H,g,A,b,C,d,x,y,z,s):
-    
+     
     r_L  = H @ x + g - A @ y - C @ z
     r_A  = b - A.T @ x
     r_C  = s + d - C.T @ x
