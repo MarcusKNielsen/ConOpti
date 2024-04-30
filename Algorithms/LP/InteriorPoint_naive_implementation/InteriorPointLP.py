@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.linalg import ldl, solve_triangular
 from numpy.linalg import norm
+from scipy.sparse.linalg import splu
 
 """
 
@@ -23,6 +24,73 @@ x0 should be an interior point, it must not be on the boundary.
 """
 
 
+def InteriorPointLP2(g,A,b,x0,mu0,lam0,tol = 10e-6,maxiter = 100):
+
+    # x0: Starting point
+    # mu0: equality constraint Langragian multiplier
+    # lam0: inequality constraint Lagragian multiplier
+
+    # Requirement for algorithm to start
+    if not x0>0 and lam0 > 0:
+        raise Exception(r"Requirement is not statisfied for $x$ and $\lambda$ > 0")
+    
+    n,m = A.shape
+    
+    xk = x0
+    muk = mu0
+    lamk = lam0
+
+    converged = False
+    iter = 0
+
+    while not converged and iter < maxiter:
+
+        # Computing duality meassure
+        sk = xk.T@lamk
+
+        # Computing residuals
+        rL = g - A.T@muk - lamk     # Lagranian residual    
+        rA = A@xk - b               # affine residual
+        Xk = xk*np.eye(n)
+        LAMk = lamk*np.eye(n)
+
+        KKT_LP = np.block([[np.zeros([n,m]), -A, -np.eye(n)],
+                           [A, np.zeros([n,m]),np.zeros([n,m])],
+                           [LAMk,np.zeros([n,m]),Xk]
+                           ])
+        
+        sigmak = np.random()
+        tauk = sigmak*sk
+        rhs = np.block([[-rL],[-rA],[-Xk@LAMk + tauk]])
+
+        # We solve using lu sparse
+        LU_decomp = splu(KKT_LP)
+        sol = LU_decomp.solve(rhs)
+
+        delta_x = sol[:n]
+        delta_mu = sol[n:-n]
+        delta_lam = sol[-n:]
+
+        # Find larges affine step alpha
+        alphas = np.linspace(0,1,50)
+        alphas = alphas[:, np.newaxis]
+        candidates_aff = np.block([xk,lamk]) + alphas * np.block([delta_x, delta_lam])
+        largest_index_aff = np.argmin(np.all(candidates_aff >= 0, axis=1))
+        alpha_aff = alphas[largest_index_aff-1]
+
+        # Updating x and lagragian multipliers
+        xk = xk + alpha_aff*delta_x
+        muk = muk + alpha_aff*delta_mu
+        lamk = lamk + alpha_aff*delta_lam
+
+
+        converged = (norm(rL,np.inf) < 0 and norm(rA,np.inf) < 0 and norm(sk,np.inf) < 0)
+    
+
+
+
+
+
 def InteriorPointLP(g,A,b,C,d,x0,y0,z0,s0,MaxIter = 100, tol = 10**(-6)):
     
     x,y,z,s = x0,y0,z0,s0
@@ -33,10 +101,10 @@ def InteriorPointLP(g,A,b,C,d,x0,y0,z0,s0,MaxIter = 100, tol = 10**(-6)):
     
     # Calculate residuals
     r_L  = g - A @ y - C @ z
-    r_A  = b - A.T @ x
+    r_A  = b - A.T @ x 
     r_C  = s + d - C.T @ x
     r_sz = s*z
-    
+     
     n,mc = C.shape
     mu = (z.T @ s)/mc
     

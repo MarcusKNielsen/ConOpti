@@ -5,11 +5,10 @@ Test Interior Point Linear Program Algorithm
 import numpy as np
 from InteriorPointLP import InteriorPointLP, plotLP
 
-
 # objective function
 from LP_Examples import LP_example
 
-example = 1
+example = 3
 g,C,d,x,xlimits = LP_example(example,PrintFormat=True)
 
 # equality constraints
