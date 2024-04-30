@@ -88,9 +88,6 @@ def InteriorPointLP2(g,A,b,x0,mu0,lam0,tol = 10e-6,maxiter = 100):
     
 
 
-
-
-
 def InteriorPointLP(g,A,b,C,d,x0,y0,z0,s0,MaxIter = 100, tol = 10**(-6)):
     
     x,y,z,s = x0,y0,z0,s0

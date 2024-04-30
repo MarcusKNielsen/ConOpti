@@ -76,17 +76,14 @@ def EqualityQPSolverLUsparse(H, g, A, b):
 
     return x,lam 
 
-
 def EqualityQPSolverLDLdense(H, g, A, b):
 
     KKT_mat, rhs, n = construct_KKT(H, g, A, b)
 
-    L,D,perm = ldl(KKT_mat,lower=True)
+    L,D,perm = ldl(KKT_mat)
     rhs_permuted = rhs[perm]
-    L_permuted = L[perm]
-    D_permuted = D[perm]
-    Y = solve(L_permuted,rhs_permuted)
-    sol = solve(D_permuted,Y)    
+    Y = solve_triangular(L,rhs_permuted,lower=True)
+    sol = solve_triangular(D@L.T,Y)    
 
     x = sol[:n]
     lam = sol[n:]
