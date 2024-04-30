@@ -83,8 +83,10 @@ def EqualityQPSolverLDLdense(H, g, A, b):
 
     L,D,perm = ldl(KKT_mat,lower=True)
     rhs_permuted = rhs[perm]
-    Y = solve(L,rhs_permuted)
-    sol = solve(D,Y)    
+    L_permuted = L[perm]
+    D_permuted = D[perm]
+    Y = solve(L_permuted,rhs_permuted)
+    sol = solve(D_permuted,Y)    
 
     x = sol[:n]
     lam = sol[n:]
