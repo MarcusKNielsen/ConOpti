@@ -3,6 +3,7 @@ import pandas as pd
 from casadi import *
 import numpy as np
 import matplotlib.pyplot as plt
+from LP_interiorPiont import InteriorPointLP
 
 mat = scipy.io.loadmat(r"C:\Users\maria\OneDrive - Danmarks Tekniske Universitet\Kandidat\1_semester\Constrained optimization\ConOpti\Algorithms\LP\LP_Test.mat")
 
@@ -22,8 +23,17 @@ a = DM(np.vstack([np.concatenate([np.ones(len(U)),-1*np.ones(len(C))]),np.eye(le
 lba = DM(np.block([0,np.zeros(len(U)+len(C))]))
 uba = DM(np.block([0,Pd_max,Pg_max]))
 
+# Solving the problem
 sol = solver(g=g, a=a, lba=lba, uba=uba) 
 print("cost = ",-1*sol["cost"]) 
+
+A_IP = np.concatenate([np.ones(len(U)),-1*np.ones(len(C))])
+g_IP = np.concatenate([-1*U,C])
+b_IP = np.zeros(1)
+n,m = A_IP.shape
+mu = np.zeros()
+
+result = InteriorPointLP(A_IP,g_IP,b_IP,x,mu,lam,MaxIter=1000,tol=1e-6)
 
 demand_sol = sol["x"][:len(U)]
 supply_sol = sol["x"][len(U):]
@@ -34,6 +44,8 @@ sorted_supply_indices = np.argsort(-C)  # Sort supply by price in descending ord
 
 cumulative_demand = np.cumsum(demand_sol[sorted_demand_indices])
 cumulative_supply = np.cumsum(supply_sol[sorted_supply_indices])
+
+
 
 # Plotting
 plt.figure(figsize=(10, 6))
@@ -46,6 +58,6 @@ plt.ylabel("Price ($/MWh)")
 plt.title("Supply-Demand Curve")
 plt.legend()
 plt.grid(True)
-plt.show()
+#plt.show()
 
 

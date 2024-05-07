@@ -6,7 +6,7 @@ import numpy as np
 def InteriorPointLP(A,g,b,x,mu,lam,MaxIter=1000,tol=1e-6):
 
     # Initialize the variables
-    m,n = A.shape 
+    n,m = A.shape 
     e = np.ones(n)
     k = 0 # iteration counter
     Xres = np.zeros([MaxIter+1,len(x)])
@@ -19,13 +19,13 @@ def InteriorPointLP(A,g,b,x,mu,lam,MaxIter=1000,tol=1e-6):
         X = np.diag(x)
         
         # Check for convergence (stop citeria)
-        if np.linalg.norm(A@x-b) < tol and np.linalg.norm(g-A.T@mu-lam) < tol and np.linalg.norm(X@Lam) < tol:
+        if np.linalg.norm(A.T@x-b) < tol and np.linalg.norm(g-A@mu-lam) < tol and np.linalg.norm(X@Lam) < tol:
             converge = True
         else:      
-            vs = np.block([[np.zeros((n,n)),-A.T,-np.eye(n)],
-                    [A, np.zeros((m,m)), np.zeros((m,n))],
+            vs = np.block([[np.zeros((m,n)),-A.T,-np.eye(m)],
+                    [A, np.zeros((n,n)), np.zeros((n,n))],
                     [Lam, np.zeros((n,m)), X]])
-            hs = np.concatenate([-(g-A.T@mu-lam),-(A@x-b),-X@Lam@e])
+            hs = np.vstack([-(g-A@mu-lam),-(A.T@x-b),-X@Lam@e])
             
             # Solving for the affine direction
             aff = np.linalg.solve(vs,hs)
@@ -52,7 +52,7 @@ def InteriorPointLP(A,g,b,x,mu,lam,MaxIter=1000,tol=1e-6):
             # Solve for the search direction
             deltaXaff = np.diag(deltaxaff)
             deltaLamaff = np.diag(deltalamaff)
-            hs1 = np.concatenate([-(g-A.T@mu-lam),-(A@x-b),-X@Lam@e-deltaXaff@deltaLamaff@e+sigma*s*e])
+            hs1 = np.vstack([-(g-A.T@mu-lam),-(A@x-b),-X@Lam@e-deltaXaff@deltaLamaff@e+sigma*s*e])
             
             aff1 = np.linalg.solve(vs,hs1)
             deltax = aff1[:n]
