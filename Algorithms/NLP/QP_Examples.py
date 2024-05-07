@@ -56,8 +56,8 @@ def QP_example(example,PrintFormat=False):
         d = np.array([ -0.84, -39.2 ])
         
         # Initial guess
-        x1 = -5.0
-        x2 = 0.0
+        x1 = -0.5
+        x2 = 7.0
         x0 = np.array([x1,x2],dtype=np.float64)
         
         print(f"Example {example}")
