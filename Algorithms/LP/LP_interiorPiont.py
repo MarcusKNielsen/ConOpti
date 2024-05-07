@@ -7,7 +7,7 @@ def InteriorPointLP(A,g,b,x,mu,lam,MaxIter=1000,tol=1e-6):
 
     # Initialize the variables
     n = len(x)
-    m = A.shape[1]
+    m = A.shape[1] 
     e = np.ones(n)
     k = 0 # iteration counter
     Xres = np.zeros(MaxIter+1,len(x))
@@ -90,6 +90,8 @@ def InteriorPointLP(A,g,b,x,mu,lam,MaxIter=1000,tol=1e-6):
       
     return results
     
+    
+
     
     
     
