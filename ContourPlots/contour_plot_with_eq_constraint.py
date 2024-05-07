@@ -32,8 +32,6 @@ x1, x2 = np.meshgrid(np.linspace(x1min, x1max, 400), np.linspace(x2min, x2max, 4
 z = objective(x1, x2)
 
 
-
-
 # Initialize the plot.
 plt.figure()
 

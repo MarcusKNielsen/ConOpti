@@ -28,6 +28,21 @@ sol = solver(g=g, a=a, lba=lba, uba=uba)
 print("cost = ",-1*sol["cost"]) 
 
 A_IP = np.concatenate([np.ones(len(U)),-1*np.ones(len(C))])
+slack_mat = np.eye((len(U)+len(C))*2)
+slack_mat[::2] *= -1
+slackA = np.vstack([np.zeros(len(U)*2+len(C)*2),slack_mat])
+
+
+A = np.zeros([slackA.shape[1],A_IP.shape[0]])
+
+for i in range(A.shape[1]):
+    A[i*2,i*2-i] = 1
+    A[i*2+1,i*2-i] = 1
+
+ja = True
+
+
+
 g_IP = np.concatenate([-1*U,C])
 b_IP = np.zeros(1)
 n,m = A_IP.shape
