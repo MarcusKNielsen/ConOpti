@@ -25,7 +25,10 @@ x0 should be an interior point, it must not be on the boundary.
 
 def InteriorPointQP(H,g,A,b,C,d,x0,y0,z0,s0,MaxIter = 100, tol = 10**(-6)):
     
-    x,y,z,s = x0,y0,z0,s0
+    x = np.copy(x0)
+    y = np.copy(y0)
+    z = np.copy(z0)
+    s = np.copy(s0)
     
     def simple_stopping(r_L,r_A,r_C,mu,tol):
         r = np.block([r_L,r_A,r_C,mu])
@@ -122,6 +125,7 @@ def InteriorPointQP(H,g,A,b,C,d,x0,y0,z0,s0,MaxIter = 100, tol = 10**(-6)):
     X = X[:(k+1),:]
     results = dict()
     results["xmin"] = x
+    results["slack"] = s
     results["lagrange_eq"] = y
     results["lagrange_ineq"] = z
     results["converged"] = converged
