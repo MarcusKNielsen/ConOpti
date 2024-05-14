@@ -30,7 +30,7 @@ g,A,b,x,xlimits = LP_example(example,PrintFormat=True)
 
 m,n = A.shape
 lamb1 = np.ones(n)
-mu1 = np.zeros(m)
+mu1 = np.zeros(m) 
 
 results = LP(A,g,b,x,mu1,lamb1,MaxIter=1000,tol=1e-6)
 print(results['xmin'], results['iterations'], results['Converged'])

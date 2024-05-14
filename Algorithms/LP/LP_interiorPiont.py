@@ -11,6 +11,7 @@ def InteriorPointLP(A,g,b,x,mu,lam,MaxIter=1000,tol=1e-6):
     k = 0 # iteration counter
     Xres = np.zeros([MaxIter+1,len(x)])
     Xres[0,:] = x
+
     
     converge = False
     
@@ -26,7 +27,7 @@ def InteriorPointLP(A,g,b,x,mu,lam,MaxIter=1000,tol=1e-6):
                     [A, np.zeros((m,m)), np.zeros((m,n))],
                     [Lam, np.zeros((n,m)), X]])
             hs = np.concatenate([-(g-A.T@mu-lam),-(A@x-b),-X@Lam@e])
-            
+             
             # Solving for the affine direction
             aff = np.linalg.solve(vs,hs)
             deltaxaff = aff[:n]

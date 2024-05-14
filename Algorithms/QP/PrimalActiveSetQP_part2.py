@@ -7,7 +7,7 @@ Finding a feasible initial point for the
 Primal Active Set Quadratic Programming algorithm
 
 min 0.5 x' H x + g' x
-subject to A' x >= b
+subject to A' x >= b 
 
 Note it is not implemented with equality constrains 
 
