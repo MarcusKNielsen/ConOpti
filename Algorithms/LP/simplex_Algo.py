@@ -5,7 +5,7 @@ import random
 
 
 def simplex(A,b,g,x):
-    y = x+2
+    y = x+3
 
     # Initalizations for the while loop
     max_iter = 10
