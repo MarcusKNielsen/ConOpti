@@ -27,20 +27,19 @@ uba = DM(np.block([0,Pd_max,Pg_max]))
 sol = solver(g=g, a=a, lba=lba, uba=uba) 
 print("cost = ",-1*sol["cost"]) 
 
-A_IP = np.concatenate([np.ones(len(U)),-1*np.ones(len(C))])
+A_first_line = np.concatenate([np.ones(len(U)),-1*np.ones(len(C))])
 slack_mat = np.eye((len(U)+len(C))*2)
 slack_mat[::2] *= -1
-slackA = np.vstack([np.zeros(len(U)*2+len(C)*2),slack_mat])
+A_right_matrix = np.vstack([np.zeros(len(U)*2+len(C)*2),slack_mat])
 
 
-A = np.zeros([slackA.shape[1],A_IP.shape[0]])
+A_left_matrix = np.zeros([A_right_matrix.shape[1],A_first_line.shape[0]])
 
-for i in range(A.shape[1]):
-    A[i*2,i*2-i] = 1
-    A[i*2+1,i*2-i] = 1
+for i in range(A_left_matrix.shape[1]):
+    A_left_matrix[i*2,i*2-i] = 1
+    A_left_matrix[i*2+1,i*2-i] = 1
 
-ja = True
-
+A = A_left_matrix
 
 
 g_IP = np.concatenate([-1*U,C])
