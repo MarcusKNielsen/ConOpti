@@ -23,8 +23,8 @@ def PrimalActiveSetLPSolver(g, A, b, x):
     tolerance = 1.0e-15
 
     # Find initial basic and non-basic sets
-    B_i = np.where(np.abs(x) > tolerance)[0]
-    N_i = np.where(np.abs(x) <= tolerance)[0]
+    B_i = np.where(np.abs(x) >= tolerance)[0]
+    N_i = np.where(np.abs(x) < tolerance)[0]
 
     B = A[:, B_i]
     N = A[:, N_i]
@@ -80,3 +80,19 @@ def PrimalActiveSetLPSolver(g, A, b, x):
 # Example usage:
 # Define A, b, g, x based on your specific problem.
 # optimal_x = PrimalActiveSetLPSolver(g, A, b, x)
+
+A = np.array([
+    [1,1,1,0],
+    [2,0.5,0,1]
+]) 
+
+A_a = 
+
+b = np.array([5,8]).T
+g = np.array([-4,-2,0,0]).T
+
+#x = feasibleInitialPoint(A, b)
+x = np.array([0,1,0,0])
+
+x = PrimalActiveSetLPSolver(g,A,b,x)
+print(x)
