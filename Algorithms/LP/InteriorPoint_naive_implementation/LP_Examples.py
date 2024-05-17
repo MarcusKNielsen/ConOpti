@@ -57,8 +57,8 @@ def LP_example(example,PrintFormat=False):
 
     if example == 4:
         g = np.array([0.23838225, 0.21255372])
-        C = np.array([[1.62434536, -0.61175641+4]])
-        d = np.array([1+0.00018578])
+        C = np.array([[1.62434536, -0.61175641+2]])
+        d = np.array([0.00018578])
         x1 = 2
         x2 = 3
         x0 = np.array([x1,x2],dtype=np.float64)
