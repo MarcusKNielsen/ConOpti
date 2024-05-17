@@ -12,7 +12,6 @@ def InteriorPointLP(A,g,b,x,mu,lam,MaxIter=1000,tol=1e-6):
     Xres = np.zeros([MaxIter+1,len(x)])
     Xres[0,:] = x
 
-    
     converge = False
     
     while converge == False and k < MaxIter:

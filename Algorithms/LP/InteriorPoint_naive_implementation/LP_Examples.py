@@ -66,6 +66,15 @@ def LP_example(example,PrintFormat=False):
         # limites for plotting
         xlimits = [-10,5,-10,10]
         
+
+    if example == 5:
+        g = np.array([-4,-2,0,0])
+        A = np.array([[1,1,1,0],[2,0.5,0,1]])
+        x1 = 2
+        x2 = 3
+        x0 = np.array([x1,x2],dtype=np.float64)
+        xlimits = [-10,5,-10,10]
+
     return g,C,d,x0,xlimits
 
 

@@ -479,12 +479,16 @@ Code for contour plots with equality constraints.
 
 from scipy.optimize import fsolve
 def plotLP_2(g,A,b,X=None,xlimits=None,title=None):
-
+ 
     def objective(x1,x2):
         return g[0]*x1 + g[1]*x2
 
-    x1min, x1max = -1,10
-    x2min, x2max = -1,10
+    if not xlimits:
+        x1min, x1max = -1,10
+        x2min, x2max = -1,10
+    else:
+        x1min, x1max = xlimits[0],xlimits[1]
+        x2min, x2max = xlimits[2],xlimits[3]
 
     # Create a grid of points.
     x1, x2 = np.meshgrid(np.linspace(x1min, x1max, 400), np.linspace(x2min, x2max, 400))

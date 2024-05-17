@@ -45,8 +45,6 @@ if __name__ == "__main__":
     cumulative_demand = np.cumsum(demand_sol[sorted_demand_indices])
     cumulative_supply = np.cumsum(supply_sol[sorted_supply_indices])
 
-
-
     # Plotting
     plt.figure(figsize=(10, 6))
     plt.step(cumulative_demand, U[sorted_demand_indices],where="post", label="Cumulative Demand")
