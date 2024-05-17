@@ -524,6 +524,7 @@ def plotLP_2(g,A,b,X=None,xlimits=None,title=None):
         x1, x2 = X[:,0], X[:,1]
         plt.plot(x1[0],x2[0],"x",color="red",markersize=15,label=r"$x_0$: initial point")
         plt.plot(x1,x2,"-o",color="red")
+        plt.plot(x1[-1],x2[-1],"x",color="blue",markersize=15,label=r"$x_star$: solution")
         plt.title(title)
         plt.legend()
 
