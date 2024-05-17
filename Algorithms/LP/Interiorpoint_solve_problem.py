@@ -4,6 +4,7 @@ from casadi import *
 import numpy as np
 import matplotlib.pyplot as plt
 from LP_interiorPiont import InteriorPointLP
+from Casadi_solve_problem import casadi_solve
 
 # Loading data
 mat = scipy.io.loadmat(r"C:\Users\maria\OneDrive - Danmarks Tekniske Universitet\Kandidat\1_semester\Constrained optimization\ConOpti\Algorithms\LP\LP_Test.mat")
@@ -49,7 +50,11 @@ b_IP = np.hstack([np.zeros(2),b_IP_temp])
 m,n = A.shape
 lam = np.ones(n)
 mu = np.zeros(m)
-x = np.ones(n)*2.1
+x = np.ones(n)*2.1 #np.concatenate([np.zeros(45),np.ones(90)])#
+
+sol,x = casadi_solve()
+x = np.array(x).ravel()
+x = np.concatenate([x,np.ones(90)])
 
 result = InteriorPointLP(A,g_IP,b_IP,x,mu,lam,MaxIter=1000,tol=1e-6)
 print(result["iterations"])

@@ -4,6 +4,7 @@ from scipy.linalg import lu, solve, ldl, solve_triangular, qr
 import random
 from numpy.linalg import solve
 from scipy.optimize import linprog
+from InteriorPoint_naive_implementation.InteriorPointLP import InteriorPointLP, plotLP_2
 
 def feasibleInitialPoint(A, b):
     n, m = A.shape
@@ -40,42 +41,37 @@ def simplex(A,b,g,x):
     tolerance = 1e-7
 
     # All the sets
-    all_sets = np.arange(A.shape[1])
+    m,n = A.shape
     
     # The index of the activate and non active set
-    N_set = np.where(A@x-b < tolerance)[0]
-    B_set = np.setdiff1d(all_sets, N_set)
+    N_set = np.where(x==0)[0]
+    B_set = np.where(x>=0)[0]
+
+    if B_set.size > m:
+        remove_number = B_set.size - m
+        for i in range(len(remove_number)):
+            B_set = np.delete(B_set,i)
+
+    elif B_set.size < m:
+         remove_number = m- B_set.size
+        for i in range(len(remove_number)):
+            B_set = np.delete(B_set,i)
+        
 
     if B_set.size == 0:
           raise Exception("x is not a feasible point")
 
     # The active and the non active sets
-    B = A[B_set,:]
-    N = A[N_set,:]
-    gN = g[N_set]
-    gB = g[B_set]
+    B = A[:,B_set]
+    N = A[:,N_set]
 
-    xN = solve(A[N_set,:],b[N_set])
-    xB = solve(A[B_set,:],b[B_set])
-    
     while not converged and iter < max_iter:
-
-        # The active and the non active sets
-        B = A[B_set]
-        N = A[N_set]
-        gN = g[N_set]
-        gB = g[B_set]
         
-        # Solving with LU 
-        P,L,U = lu(B)
-        #Y  = solve_triangular(P@L,gB,lower=True)
-        mu = np.linalg.solve(B, gB)#solve_triangular(U,Y) 
-
-        # Compute lambda_N
-        lam_N = gN-N.T@mu
+        mu = np.linalg.solve(B.T, g[B_set])
+        lam_N = g[N_set] - N.T @ mu 
 
         # Checking if all lambda values are larger than 0
-        if (lam_N >= 0).all():
+        if (lam_N >= 0).all() and lam_N.size > 0:
                 # Optimal solution sound 
                 print("Optimal solution found.")
                 converged = True
@@ -151,11 +147,11 @@ def PrimalActiveSetLPSolver(g, A, b, x):
     tolerance = 1.0e-15
 
     # Find initial basic and non-basic sets
-    N_i = np.where(np.abs(x) == 0)[0]
-    B_i = np.where(np.abs(x) != 0)[0]
+    N_i = np.where(x==0)[0]
+    B_i = np.where(x>=0)[0]
 
-    B = A.T[B_i]
-    N = A.T[N_i]
+    B = A[:,B_i]
+    N = A[:,N_i]
 
     converged = False
     iter = 0
@@ -165,7 +161,7 @@ def PrimalActiveSetLPSolver(g, A, b, x):
         lambda_N = g[N_i] - N.T @ mu
 
         # Check if optimal solution
-        if not np.any(lambda_N < 0):
+        if np.all(lambda_N < 0) and lambda_N.size > 0:
             print("Solver converged to a solution")
             converged = True
             break
@@ -203,23 +199,25 @@ def PrimalActiveSetLPSolver(g, A, b, x):
     if not converged:
         return np.nan
 
-    return x
+    return x,iter
 
 #A = np.array([[2,-1,1/2],[1,1,1]])
 A = np.array([
     [2, 1],
-    [-1, 1],
-    [1/2, 1]
+    [-1, 1]
 ]) 
 
-b = np.array([8,2,6])
+b = np.array([8,2])
 g = np.array([1,3])
 
 #x = feasibleInitialPoint(A, b)
-x = np.array([2.666666667,4.666666667])
+x = np.array([0,4])
 
-lam_N, xB, xN = simplex(A,b,g,x)
+xN,iter = simplex(A,b,g,x)
 #x = PrimalActiveSetLPSolver(g,A,b,x)
+print(iter)
+
+plotLP_2(g,A,b,np.array([xN]),title=f"InteriorPointLP: Example",xlimits=[-10,10,-10,10])
 print(x)
 
 
