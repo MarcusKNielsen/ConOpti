@@ -181,13 +181,13 @@ def InteriorPointLP_simplified_mari(A,g,b,x,mu,lam,MaxIter=10000,tol=1e-9):
     rC = x*lam
 
     # Duality gap 
-    s = np.sum(rC)/n
+    s = np.sum(rC)/n 
     
     converge = (np.max(np.abs(rL)) < tol and np.max(np.abs(rA)) < tol and np.abs(s) < tol)
 
     while converge == False and k < MaxIter:
         # Updating iterations
-        k = k + 1
+        k += 1
 
         #### Form an factorize hessian ####
         xdivlambda = x/lam

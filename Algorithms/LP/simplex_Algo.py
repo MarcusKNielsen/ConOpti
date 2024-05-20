@@ -47,7 +47,7 @@ def phase2_simplex(A0,b0,x0,g0,iter0):
     # Initalizations for the while loop
     max_iter = 10000
     converged = False
-    iter = 0
+    iter = 0 
     
     tolerance = 1e-15
 
@@ -134,10 +134,13 @@ def run_simplex(A,b,g):
     
     print("phase1 starts")
     xstar,iter = phase1_simplex(A, b)
+    print("xstar:",xstar)
     print("phase1 done")
 
     # Solving the problem
     print("phase2 starts")
+    #xstar = np.array([0,0,5,8])
+
     result = phase2_simplex(A,b,xstar,g,iter)
     print("phase2 done")
 
@@ -161,7 +164,7 @@ if __name__ == "__main__":
     X = result["X all"] 
     mu = result["mu"] 
     print("Iterations",iter)
-    print("Lambda",result["lambda N"])
+    print("Lambda N",result["lambda N"])
     print("sol",X[-1])
     print("mu",mu)
 
