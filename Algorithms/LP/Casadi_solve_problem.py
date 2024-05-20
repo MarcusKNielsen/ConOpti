@@ -5,13 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from LP_interiorPiont import InteriorPointLP
 
-def casadi_solve():
-    mat = scipy.io.loadmat(r"C:\Users\maria\OneDrive - Danmarks Tekniske Universitet\Kandidat\1_semester\Constrained optimization\ConOpti\Algorithms\LP\LP_Test.mat")
-
-    C = mat["C"].ravel()
-    Pd_max = mat["Pd_max"].ravel()
-    Pg_max = mat["Pg_max"].ravel()
-    U = mat["U"].ravel()
+def casadi_solve(C,Pd_max,Pg_max,U):
 
     # Sparsity of the LP linear term
     A = Sparsity.dense(1+len(U)+len(C), len(U)+len(C))

@@ -14,7 +14,7 @@ A,g_IP,b_IP,U,C = load_problem(directory)
 m,n = A.shape
 lam = np.ones(n) 
 mu = np.zeros(m)
-x = np.ones(n)*2.1
+x = np.ones(n)*2.1 
 
 #result = InteriorPointLP(A,g_IP,b_IP,x,mu,lam,MaxIter=1000,tol=1e-6)
 result = InteriorPointLP_simplified(A,g_IP,b_IP,x,mu,lam,MaxIter=10000,tol=1e-6)
