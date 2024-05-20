@@ -103,3 +103,4 @@ def plotHimmelblau(X=None):
         plt.legend(loc = "lower right")
 
     plt.show()
+

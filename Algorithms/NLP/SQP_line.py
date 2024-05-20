@@ -3,18 +3,14 @@ from numpy.linalg import norm
 from InteriorPointQP import InteriorPointQP, plotQP
 
 
-
-
 def check_optimality(x,Jac_f,z,g,Jac_g,tol):
     
-    stationarity    = norm(Jac_f.T - Jac_g.T @ z, np.inf) < tol
-    primal_fea_ineq = np.min(g) >= 0
-    dual_fea        = np.min(z) >= 0
+    stationarity    = np.max(np.abs(Jac_f.T - Jac_g.T @ z)) < tol
+    primal_fea_ineq = np.min(g) >= -tol
+    dual_fea        = np.min(z) >= -tol
     complementarity = np.abs(np.dot(z, g)) < tol
     
     return  stationarity & primal_fea_ineq & dual_fea & complementarity
-
-
 
 
 def line_search(x0,l,u,dx,f,df,g):
@@ -33,12 +29,9 @@ def line_search(x0,l,u,dx,f,df,g):
         if phi <= c + 0.1 * b * alpha:
             Stop = True
         else:
-            a = (phi - (c+b*alpha))/alpha**2
+            a = max((phi - (c+b*alpha))/alpha**2,10**(-14))
             alpha_min = -b/(2*a)
             alpha = np.min([0.9*alpha,np.max([alpha_min,0.1*alpha])])
-    
-    if i == 15:
-        Exception("line search did not converge")
     
     return alpha
 
@@ -61,11 +54,13 @@ def BFGS_update(B,xnxt,xnow,znxt,df,dg):
     
     r = theta * q + (1-theta) * temp
     
-    B = B + np.outer(r,r)/(p.T @ r) - np.outer(temp,temp) / (p.T @ temp)
+    denom1 = max(p.T @ r,10**(-14))
+    denom2 = max(p.T @ temp,10**(-14))
+    B = B + np.outer(r,r)/denom1 - np.outer(temp,temp) / denom2
     
     return B
     
-def solveSQP(f,df,d2f,g,dg,d2g,x0,z0,y0,s0,MaxIter = 1000,tol=10**(-6)):
+def solveSQP_Line(x0,z0,y0,s0,f,g,df,dg,d2f=None,d2g=None,MaxIter = 100,tol=10**(-6)):   
     
     x = x0.copy()
     z = z0.copy()
@@ -73,8 +68,8 @@ def solveSQP(f,df,d2f,g,dg,d2g,x0,z0,y0,s0,MaxIter = 1000,tol=10**(-6)):
     s = s0.copy()
     
     n_var  = len(x) # Number of variables
-    n_ineq = len(z) # Number of inequality constraints
-    n_eq   = len(y) # Number of equality constraints
+    #n_ineq = len(z) # Number of inequality constraints
+    #n_eq   = len(y) # Number of equality constraints
 
     k = 0 # Iteration counter
 
@@ -82,8 +77,8 @@ def solveSQP(f,df,d2f,g,dg,d2g,x0,z0,y0,s0,MaxIter = 1000,tol=10**(-6)):
     X = np.zeros([MaxIter+1,n_var])
     X[k,:] = x
 
-    Z = np.zeros([MaxIter+1,n_ineq])
-    Z[k,:] = z
+    #Z = np.zeros([MaxIter+1,n_ineq])
+    #Z[k,:] = z
 
     #Y = np.zeros([MaxIter+1,n_eq])
     #Y[k,:] = yk
@@ -96,11 +91,13 @@ def solveSQP(f,df,d2f,g,dg,d2g,x0,z0,y0,s0,MaxIter = 1000,tol=10**(-6)):
         
         # Solve sub QP problem
         
-        #H = d2f(x) - np.sum(z[:, np.newaxis, np.newaxis] * d2g(x), axis=0)
-        if k == 0:
-            H = np.eye(n_var)
+        if d2f==None and d2g==None:
+            if k == 0:
+                H = np.eye(n_var)
+            else:
+                H = BFGS_update(H,x,X[k-1,:],z,df,dg)
         else:
-            H = BFGS_update(H,x,X[k-1,:],z,df,dg)
+            H = d2f(x) - np.sum(z[:, np.newaxis, np.newaxis] * d2g(x), axis=0)
         
         q = df(x).T
         
@@ -137,6 +134,7 @@ def solveSQP(f,df,d2f,g,dg,d2g,x0,z0,y0,s0,MaxIter = 1000,tol=10**(-6)):
         # Update arrays
         X[k,:] = x
         
+        
     X = X[:(k+1),:]
     
     results = dict()
@@ -150,6 +148,3 @@ def solveSQP(f,df,d2f,g,dg,d2g,x0,z0,y0,s0,MaxIter = 1000,tol=10**(-6)):
     
     
     return results
-
-
-
