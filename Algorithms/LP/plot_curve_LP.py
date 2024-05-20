@@ -2,22 +2,22 @@
 import numpy as np 
 import matplotlib.pyplot as plt
 
-def plot_demand_supply_curve(U,C,xstar,idx):
+def plot_demand_supply_curve(Ud,Cg,xstar,idx):
     
-    demand_sol = xstar[:len(U)]
-    supply_sol = xstar[len(U):len(U)+len(C)]
+    Pd = xstar[:len(Ud)]
+    Pg = xstar[len(Ud):len(Ud)+len(Cg)]
  
     # Prepare data for plotting
-    sorted_demand_indices = np.argsort(U)[::-1]  
-    sorted_supply_indices = np.argsort(C) 
+    sorted_demand_indices = np.argsort(Ud)[::-1] # descending 
+    sorted_supply_indices = np.argsort(Cg)       # increasing
 
-    cumulative_demand = np.cumsum(demand_sol[sorted_demand_indices])
-    cumulative_supply = np.cumsum(supply_sol[sorted_supply_indices])
+    cum_Pd = np.cumsum(Pd[sorted_demand_indices])
+    cum_Pg = np.cumsum(Pg[sorted_supply_indices])
 
     # Plotting 
     plt.figure(idx) 
-    plt.step(cumulative_demand, U[sorted_demand_indices],where="post", label="Cumulative Demand")
-    plt.step(cumulative_supply, C[sorted_supply_indices], where="post", label="Cumulative Supply")
+    plt.step(cum_Pd, Ud[sorted_demand_indices],where="post", label="Cumulative Demand")
+    plt.step(cum_Pg, Cg[sorted_supply_indices], where="post", label="Cumulative Supply")
     plt.xlabel("Energy Quantity (MWh)")
     plt.ylabel("Price ($/MWh)")
     plt.title("Supply-Demand Curve")

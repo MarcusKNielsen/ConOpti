@@ -2,8 +2,6 @@ import numpy as np
 
 def phase1_simplex(A,b):
 
-    print("phase1 starts")
-
     tolerance = 1e-10
 
     m,n = A.shape
@@ -23,9 +21,8 @@ def phase1_simplex(A,b):
 
     res = phase2_simplex(A_bar, b_bar, x0, g_bar,0)
     
-    if not res["X all"]:
+    if res["X all"].size != 0:
         print("No solution found")
-        
         
     x = res["X all"][-1] 
     xstar = x[:n]
@@ -54,8 +51,8 @@ def phase2_simplex(A0,b0,x0,g0,iter0):
     
     tolerance = 1e-15
 
-    N_set = np.where(x<tolerance)[0]
-    B_set = np.where(x>tolerance)[0]
+    N_set = np.where(np.abs(x)<tolerance)[0]
+    B_set = np.where(np.abs(x)>tolerance)[0]
 
     B = A[:,B_set]
     N = A[:,N_set]
@@ -80,11 +77,13 @@ def phase2_simplex(A0,b0,x0,g0,iter0):
                 result["lambda N"] = lam_N
                 result["xB"] = x[B_set]
                 result["xN"] = x[N_set]
+                result["mu"] = mu
                 result["iter"] = iter+iter0
                 result["X all"] = X[:iter+1]
 
                 return result
         else: 
+                
                 # Not sure with the index yet
                 s = np.argmin(lam_N)
                 i_s = N_set[s]
@@ -160,7 +159,9 @@ if __name__ == "__main__":
     xN = result["xN"] 
     iter = result["iter"]
     X = result["X all"] 
+    mu = result["mu"] 
     print("Iterations",iter)
     print("Lambda",result["lambda N"])
     print("sol",X[-1])
+    print("mu",mu)
 

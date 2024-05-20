@@ -60,7 +60,7 @@ while ~Converged && (iter<maxit)
     dmu = L'\(L\rhs);
     dx = xdivlambda.*(A'*dmu) - tmp;
     dlambda = -(rC+lambda.*dx)./x;
-    
+  
     % Step length
     idx = find(dx < 0.0);
     alpha = min([1.0; -x(idx,1)./dx(idx,1)]);
@@ -81,7 +81,7 @@ while ~Converged && (iter<maxit)
     % ====================================================================
     % Center-Corrector Step
     % ====================================================================
-    rC = rC + dx.*dlambda - tau;
+    rC = rC + dx.*dlambda - tau; 
     
     tmp = (x.*rL + rC)./lambda;
     rhs = -rA + A*tmp;

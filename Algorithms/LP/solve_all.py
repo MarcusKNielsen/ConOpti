@@ -15,13 +15,14 @@ A,g,b,U,C,Pd_max,Pg_max = load_problem(directory)
 res = linprog(g, A_eq=A, b_eq=b)
 sol,solx = casadi_solve(C,Pd_max,Pg_max,U)
 #xstar,iter = phase1_simplex(A, b) 
+xstar,iter = run_simplex(A,b,g)
 
-# Interior point solve  
+# Interior point solve   
 m,n = A.shape
 lam = np.ones(n) 
 mu = np.zeros(m)
 x = np.ones(n)*2.1
-#result = InteriorPointLP(A,g,b,x,mu,lam,MaxIter=1000,tol=1e-6) 
+#result2 = InteriorPointLP(A,g,b,x,mu,lam,MaxIter=10000,tol=1e-6) 
 result2 = InteriorPointLP_simplified_mari(A,g,b,x,mu,lam,MaxIter=10000,tol=1e-6)
 
 print("cost casadi",-1*sol["cost"])
@@ -33,9 +34,9 @@ print("iter",iter)
 #print("cost interior:",-1*g@result["xmin"])
 print("cost interior simply:",-1*g@result2["xmin"])
 
-plot_demand_supply_curve(U,C,result2["xmin"],3)
+plot_demand_supply_curve(U,C,result2["xmin"],1)
 #plot_demand_supply_curve(U,C,xstar,2)
-plot_demand_supply_curve(U,C,res.x,4)
+plot_demand_supply_curve(U,C,res.x,1)
 plot_demand_supply_curve(U,C,np.array(solx),1)
 plt.show()
 
