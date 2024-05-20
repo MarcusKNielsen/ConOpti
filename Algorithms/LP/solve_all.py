@@ -8,7 +8,7 @@ from plot_curve_LP import plot_demand_supply_curve
 from LP_interiorPiont import InteriorPointLP, InteriorPointLP_simplified
 
 directory = r"C:\Users\maria\OneDrive - Danmarks Tekniske Universitet\Kandidat\1_semester\Constrained optimization\ConOpti\Algorithms\LP\LP_Test.mat"
-A,g,b,U,C = load_problem(directory)
+A,g,b,U,C,Pd_max,Pg_max = load_problem(directory)
 
 res = linprog(g, A_eq=A, b_eq=b)
 sol,solx = casadi_solve(C,Pd_max,Pg_max,U)
