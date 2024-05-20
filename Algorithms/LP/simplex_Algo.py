@@ -22,7 +22,11 @@ def phase1_simplex(A,b):
     x0 = np.hstack([np.zeros(n), t0, t0 - b, t0 + b])
 
     res = phase2_simplex(A_bar, b_bar, x0, g_bar,0)
-
+    
+    if not res["X all"]:
+        print("No solution found")
+        
+        
     x = res["X all"][-1] 
     xstar = x[:n]
     tstar = x[n]
