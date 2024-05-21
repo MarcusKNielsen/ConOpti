@@ -1,19 +1,19 @@
 import numpy as np
 from scipy.linalg import ldl, solve_triangular, solve
 from numpy.linalg import norm
+from InteriorPointQP import plotQP_eq 
 
- 
+def simple_stopping(r_L,r_A,r_C,mu,tol):
+        r = np.block([r_L,r_A,r_C,mu])
+        return norm(r,np.inf) < tol
+
 def InteriorPointQP(H,g,A,b,C,d,x0,y0,z0,s0,MaxIter = 100, tol = 10**(-6)):
-
+    
     x = np.copy(x0)
     y = np.copy(y0)
     z = np.copy(z0)
-    s = np.copy(s0) 
-    
-    def simple_stopping(r_L,r_A,r_C,mu,tol):
-        r = np.block([r_L,r_A,r_C,mu])
-        return norm(r,np.inf) < tol
-    
+    s = np.copy(s0)
+
     # Calculate residuals
     r_L  = H @ x + g - A @ y - C @ z
     r_A  = b - A.T @ x
@@ -42,21 +42,16 @@ def InteriorPointQP(H,g,A,b,C,d,x0,y0,z0,s0,MaxIter = 100, tol = 10**(-6)):
         # Compute affine direction
         r_L_bar = r_L - C @ np.diag(z/s) @ (r_C - r_sz/z)
         rhs = (-1)*np.block([r_L_bar, r_A])
-        rhs2 = solve_triangular(L[perm,:], rhs[perm],lower=True)
-        res = solve_triangular(D @ L[perm,:].T, rhs2)[perm]
+        res = solve_triangular(L.T,solve_triangular(D,solve_triangular(L,rhs[perm])))
         dx_aff = res[:len(x)]
         dy_aff = res[len(x):]
         
         dz_aff = (-1)*np.diag(z/s) @ C.T @ dx_aff + np.diag(z/s) @ (r_C - r_sz/z)
         ds_aff = - r_sz/z - (s * dz_aff)/z
         
-        # Find larges affine step alpha
-        alphas = np.linspace(0,1,50)
-        alphas = alphas[:, np.newaxis]
-        candidates_aff = np.block([z,s]) + alphas * np.block([dz_aff, ds_aff])
-        largest_index_aff = np.argmin(np.all(candidates_aff >= 0, axis=1))
-        alpha_aff = alphas[largest_index_aff-1]
-        
+        # Step length
+        alpha_aff = min(np.concatenate([np.array([1]),(-z/dz_aff)[(-z/dz_aff)>0],(-s/ds_aff)[(-s/ds_aff)>0]]))
+
         # Duality gap and centering parameter
         mu_aff = ((z + alpha_aff * dz_aff).T @ (s + alpha_aff * ds_aff)) / mc
         sigma = (mu_aff/mu)**3
@@ -66,22 +61,20 @@ def InteriorPointQP(H,g,A,b,C,d,x0,y0,z0,s0,MaxIter = 100, tol = 10**(-6)):
         r_L_bar = r_L - C @ np.diag(z/s) @ (r_C - r_sz_bar/z)
         
         rhs = (-1)*np.block([r_L_bar, r_A])
-        rhs2 = solve_triangular(L[perm,:], rhs[perm],lower=True)
-        res = solve_triangular(D @ L[perm,:].T, rhs2)[perm]
+        #rhs2 = solve_triangular(L[perm,:], rhs[perm],lower=True)
+        #res = solve_triangular(D @ L[perm,:].T, rhs2)[perm]
+        res = solve_triangular(L.T,solve_triangular(D,solve_triangular(L,rhs[perm])))
         dx = res[:len(x)]
         dy = res[len(x):]
-        
         
         dz = (-1)*np.diag(z/s) @ C.T @ dx + np.diag(z/s) @ (r_C - r_sz_bar/z)
         ds = -r_sz_bar/z - s * dz/z
         
-        candidates = np.block([z,s]) + alphas * np.block([dz, ds])
-        largest_index = np.argmin(np.all(candidates >= 0, axis=1))
-        alpha = alphas[largest_index-1]
-    
+        # Step length
+        alpha = min(np.concatenate([np.array([1]),(-z/dz)[(-z/dz)>0],(-s/ds)[(-s/ds)>0]]))
         
         # Update iterate
-        nu = 0.9
+        nu = 0.995
         alpha_bar = nu*alpha 
         
         x += alpha_bar * dx

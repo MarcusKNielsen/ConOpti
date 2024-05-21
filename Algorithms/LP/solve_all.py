@@ -15,7 +15,7 @@ A,g,b,U,C,Pd_max,Pg_max = load_problem(directory)
 res = linprog(g, A_eq=A, b_eq=b)
 sol,solx = casadi_solve(C,Pd_max,Pg_max,U)
 #xstar,iter = phase1_simplex(A, b) 
-xstar,iter = run_simplex(A,b,g)
+#xstar,iter = run_simplex(A,b,g)
 
 # Interior point solve   
 m,n = A.shape

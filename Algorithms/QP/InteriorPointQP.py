@@ -246,7 +246,7 @@ def plotQP(H,g,C,d,X=None,xlimits=None,title=None):
     # Show the plot.
     plt.show()
 
-def plotQP_eq(H,g,C,d,A,b,X=None,xlimits=None,title=None):
+def plotQP_eq(H,g,C,d,A,b,X=None,xlimits=None,title=None,idx_figure = None):
     
     
     def objective(x1, x2):
@@ -284,7 +284,7 @@ def plotQP_eq(H,g,C,d,A,b,X=None,xlimits=None,title=None):
     infeasible_mask[infeasible_region] = 1  # Mark infeasible region
     
     # Initialize the plot.
-    plt.figure()
+    plt.figure(idx_figure)
     
     # Plot the objective function.
     cs = plt.contourf(x1, x2, z, levels=20, cmap='viridis')
@@ -344,8 +344,7 @@ def InteriorPointQP_v2(H,g,A,b,C,d,x0,y0,z0,s0,MaxIter = 100, tol = 10**(-6)):
     
     n,mc = C.shape
     mu = (z.T @ s)/mc
-
-        
+    
     converged = False
     k = 0
     
@@ -360,28 +359,30 @@ def InteriorPointQP_v2(H,g,A,b,C,d,x0,y0,z0,s0,MaxIter = 100, tol = 10**(-6)):
         KKT = np.block([[H_bar, -A],[-A.T, np.zeros([m,m])]])
         
         # we find ldl factorization of the KKT system
-        #L, D, perm = ldl(KKT)
+        L, D, perm = ldl(KKT)
         
         # Compute affine direction
         r_L_bar = r_L - C @ np.diag(z/s) @ (r_C - r_sz/z)
         rhs = (-1)*np.block([r_L_bar, r_A])
         #rhs2 = solve_triangular(L[perm,:], rhs[perm],lower=True)
         #res = solve_triangular(D @ L[perm,:].T, rhs2)[perm]
-        res = solve(KKT,rhs)
-        
+        res = solve_triangular(L.T,solve_triangular(D,solve_triangular(L,rhs[perm])))
         dx_aff = res[:len(x)]
         dy_aff = res[len(x):]
         
         dz_aff = (-1)*np.diag(z/s) @ C.T @ dx_aff + np.diag(z/s) @ (r_C - r_sz/z)
         ds_aff = - r_sz/z - (s * dz_aff)/z
         
-        # Find larges affine step alpha
-        alphas = np.linspace(0,1,50)
-        alphas = alphas[:, np.newaxis]
-        candidates_aff = np.block([z,s]) + alphas * np.block([dz_aff, ds_aff])
-        largest_index_aff = np.argmin(np.all(candidates_aff >= 0, axis=1))
-        alpha_aff = alphas[largest_index_aff-1]
+        # Step length
+        """ idx = np.where((dz_aff < 0) & (ds_aff < 0)) 
+        if (z[idx]/dz_aff[idx]).size == 0 and (s[idx]/ds_aff[idx]).size == 0:
+            alpha_aff = 1
+        else:
+            tau = 0.1
+            alpha_aff = min(1,max(np.concatenate([-tau*z[idx]/dz_aff[idx],-tau*s[idx]/ds_aff[idx]]))) """
         
+        alpha_aff = min(np.concatenate([np.array([1]),(-z/dz_aff)[(-z/dz_aff)>0],(-s/ds_aff)[(-s/ds_aff)>0]]))
+
         # Duality gap and centering parameter
         mu_aff = ((z + alpha_aff * dz_aff).T @ (s + alpha_aff * ds_aff)) / mc
         sigma = (mu_aff/mu)**3
@@ -393,21 +394,26 @@ def InteriorPointQP_v2(H,g,A,b,C,d,x0,y0,z0,s0,MaxIter = 100, tol = 10**(-6)):
         rhs = (-1)*np.block([r_L_bar, r_A])
         #rhs2 = solve_triangular(L[perm,:], rhs[perm],lower=True)
         #res = solve_triangular(D @ L[perm,:].T, rhs2)[perm]
-        res = solve(KKT,rhs)
+        res = solve_triangular(L.T,solve_triangular(D,solve_triangular(L,rhs[perm])))
         dx = res[:len(x)]
         dy = res[len(x):]
-        
         
         dz = (-1)*np.diag(z/s) @ C.T @ dx + np.diag(z/s) @ (r_C - r_sz_bar/z)
         ds = -r_sz_bar/z - s * dz/z
         
-        candidates = np.block([z,s]) + alphas * np.block([dz, ds])
-        largest_index = np.argmin(np.all(candidates >= 0, axis=1))
-        alpha = alphas[largest_index-1]
-    
-        
+        # Step length
+        """ idx = np.where((dz < 0) & (ds < 0)) 
+        if (z[idx]/dz[idx]).size == 0 and (s[idx]/ds[idx]).size == 0:
+            alpha = 1
+        else:
+            tau = 0.1
+            alpha = min(1,max(np.concatenate([-tau*z[idx]/dz[idx],-tau*s[idx]/ds[idx]])))  """
+
+        alpha = min(np.concatenate([np.array([1]),(-z/dz)[(-z/dz)>0],(-s/ds)[(-s/ds)>0]]))
+
+        print(alpha)
         # Update iterate
-        nu = 0.9
+        nu = 0.995
         alpha_bar = nu*alpha 
         
         x += alpha_bar * dx
@@ -439,8 +445,3 @@ def InteriorPointQP_v2(H,g,A,b,C,d,x0,y0,z0,s0,MaxIter = 100, tol = 10**(-6)):
     results["x_array"] = X
     
     return results
-
-
-
-
-
