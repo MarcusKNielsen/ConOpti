@@ -22,7 +22,7 @@ x0 should be an interior point, it must not be on the boundary.
 
 """
 
-
+ 
 def InteriorPointQP(H,g,A,b,C,d,x0,y0,z0,s0,MaxIter = 100, tol = 10**(-6)):
     
     x = np.copy(x0)
