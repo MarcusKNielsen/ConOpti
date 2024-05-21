@@ -15,7 +15,8 @@ A,g,b,U,C,Pd_max,Pg_max = load_problem(directory)
 res = linprog(g, A_eq=A, b_eq=b)
 sol,solx = casadi_solve(C,Pd_max,Pg_max,U)
 #xstar,iter = phase1_simplex(A, b) 
-xstar,iter = run_simplex(A,b,g)
+res_simplex = run_simplex(A,b,g)
+x_simplex = res_simplex["X all"][-1]
 
 # Interior point solve   
 m,n = A.shape
@@ -27,16 +28,15 @@ result2 = InteriorPointLP_simplified_mari(A,g,b,x,mu,lam,MaxIter=10000,tol=1e-6)
 
 print("cost casadi",-1*sol["cost"])
 print("cost linprog",-1*res.fun)
+print("cost simplex:",-1*g@x_simplex)
+print("cost interior simply:",-1*g@result2["xmin"])
 print("difference in objective function solvers:",-1*sol["cost"]+res.fun)
 print("difference in x arrays",np.max(np.abs(np.array(solx)-np.array(res.x))))
 print("iter",iter)
-#print("cost simplex:",-1*g@xstar)
-#print("cost interior:",-1*g@result["xmin"])
-print("cost interior simply:",-1*g@result2["xmin"])
 
-plot_demand_supply_curve(U,C,result2["xmin"],1)
-#plot_demand_supply_curve(U,C,xstar,2)
-plot_demand_supply_curve(U,C,res.x,1)
-plot_demand_supply_curve(U,C,np.array(solx),1)
+plot_demand_supply_curve(U,C,result2["xmin"],2)
+plot_demand_supply_curve(U,C,res.x,2)
+plot_demand_supply_curve(U,C,np.array(solx),2)
+plot_demand_supply_curve(U,C,x_simplex,2)
 plt.show()
 

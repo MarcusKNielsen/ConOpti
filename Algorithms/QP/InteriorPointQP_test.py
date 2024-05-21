@@ -4,8 +4,9 @@ Test of Primal-Dual Predictor-Corrector Interior-Point Algorithm
 import numpy as np
 from scipy.linalg import lu, solve, ldl, solve_triangular,qr,inv
 from numpy.linalg import norm
-from InteriorPointQP import plotQP#,InteriorPointQP
-from InteriorPointQP2 import InteriorPointQP
+from InteriorPointQP import plotQP
+from InteriorPointQP import InteriorPointQP as IP_marcus
+from InteriorPointQP2 import InteriorPointQP as IP_mariana
 
 # Initial point
 x1 = 7.5
@@ -31,12 +32,12 @@ def f(x1,x2):
     x = np.array([x1,x2])
     return 0.5 * x.T @ H @ x + g.T @ x
 
-MaxIter = 100
+MaxIter = 6
 tol = 1e-2
 
 #%% Interior-Point Algorithm
 
-res = InteriorPointQP(H,g,A,b,C,d,x,y,z,s,MaxIter, tol)
+res = IP_marcus(H,g,A,b,C,d,x,y,z,s,MaxIter, tol)
 X = res['x_array']
 x0 = X[0,:]
 xmin = res['xmin']

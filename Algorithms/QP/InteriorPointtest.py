@@ -1,10 +1,10 @@
 import numpy as np
 from InteriorPointQP import plotQP_eq
-from InteriorPointQP2 import InteriorPointQP
+from InteriorPointQP import InteriorPointQP as IP_marcus
+from InteriorPointQP2 import InteriorPointQP as IP_mariana
 
 x1 = -2
 x2 = 2
-
 x = np.array([x1,x2],dtype=float)
 
 H = np.eye(2)
@@ -32,7 +32,7 @@ tol = 10**(-2)
 
 #%% Interior-Point Algorithm
 
-res = InteriorPointQP(H,g,A,b,C,d,x,y,z,s,MaxIter, tol)
+res = IP_mariana(H,g,A,b,C,d,x,y,z,s,MaxIter, tol)
 X = res['X_results']
 x0 = X[0,:]
 xmin = res['xmin']

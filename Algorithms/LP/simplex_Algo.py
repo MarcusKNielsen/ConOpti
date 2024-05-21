@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.optimize import linprog
 
 def phase1_simplex(A,b):
 
@@ -20,18 +21,19 @@ def phase1_simplex(A,b):
     x0 = np.hstack([np.zeros(n), t0, t0 - b, t0 + b])
 
     res = phase2_simplex(A_bar, b_bar, x0, g_bar,0)
+    #res = linprog(g_bar, A_eq=A_bar, b_eq=b_bar,x0=x0)
     
-    if res["X all"].size != 0:
+    if res["X all"].size != 0:#res.x.size != 0:#
         print("No solution found")
         
-    x = res["X all"][-1] 
+    x = res["X all"][-1] #res.x#
     xstar = x[:n]
     tstar = x[n]
-    sstar = x[n + 1:]
+    sstar = x[n + 1:] 
 
     if np.all(sstar < tolerance) and tstar < tolerance:
         print("phase1 done")
-        return xstar,res["iter"]
+        return xstar,res["iter"]#xstar,res.nit
     else:
         print('No feasible point found')
         return []
@@ -50,10 +52,28 @@ def phase2_simplex(A0,b0,x0,g0,iter0):
     iter = 0 
     
     tolerance = 1e-15
+    m,n = A.shape
 
-    N_set = np.where(np.abs(x)<tolerance)[0]
+    all_sets = np.arange(n)
+
     B_set = np.where(np.abs(x)>tolerance)[0]
 
+    if B_set.size < m:
+        # Find indices where |x| == tolerance
+        additional_indices = np.where(np.abs(x) < tolerance)[0]
+        
+        # Calculate how many more indices are needed
+        needed_indices = m - B_set.size
+        
+        # If there are enough additional indices, take the needed amount
+        if additional_indices.size >= needed_indices:
+            B_set = np.concatenate((B_set, additional_indices[:needed_indices]))
+        else:
+            # If not enough additional indices, take all of them
+            B_set = np.concatenate((B_set, additional_indices))
+
+    N_set = np.setdiff1d(all_sets,B_set)#np.where(np.abs(x)<tolerance)[0]
+    
     B = A[:,B_set]
     N = A[:,N_set]
 

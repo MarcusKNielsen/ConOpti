@@ -45,7 +45,7 @@ def f(x1, x2):
     x = np.array([x1, x2])
     return 0.5 * x.T @ H_load @ x + g.T @ x
 
-MaxIter = 10000
+MaxIter = 100
 tol = 1e-2
 
 # %% Interior-Point Algoritm
