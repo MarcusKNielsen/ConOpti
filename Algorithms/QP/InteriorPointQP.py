@@ -19,7 +19,6 @@ The algorithm below requires an initial guess
 (x0,y0,z0,s0) where z0 > 0 and s0 > 0.
 x0 should be an interior point, it must not be on the boundary.
 
-
 """
 
  

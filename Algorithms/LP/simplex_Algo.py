@@ -59,7 +59,7 @@ def phase2_simplex(A0,b0,x0,g0,iter0):
 
     # Initializing X output
     X = np.zeros([max_iter+1,len(x)])
-    X[0,:] = x
+    X[0,:] = x 
 
     while not converged and iter < max_iter:
         
@@ -130,6 +130,7 @@ def phase2_simplex(A0,b0,x0,g0,iter0):
         if iter == max_iter:
              return False
  
+
 def run_simplex(A,b,g):
     
     print("phase1 starts")
@@ -165,5 +166,5 @@ if __name__ == "__main__":
     print("Iterations",iter)
     print("Lambda N",result["lambda N"])
     print("sol",X[-1])
-    print("mu",mu)
+    print("mu",mu) 
 
