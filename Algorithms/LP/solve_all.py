@@ -6,7 +6,7 @@ import numpy as np
 from Casadi_solve_problem import casadi_solve
 from plot_curve_LP import plot_demand_supply_curve
 from LP_interiorPiont import InteriorPointLP, InteriorPointLP_simplified,InteriorPointLP_simplified_mari
-
+ 
 directory = r"C:\Users\maria\OneDrive - Danmarks Tekniske Universitet\Kandidat\1_semester\Constrained optimization\ConOpti\Algorithms\LP\LP_Test.mat"
 #directory = r"/home/max/Documents/DTU/ConOpti/ConOpti/Algorithms/LP/LP_Test.mat"
 
@@ -15,7 +15,7 @@ A,g,b,U,C,Pd_max,Pg_max = load_problem(directory)
 res = linprog(g, A_eq=A, b_eq=b)
 sol,solx = casadi_solve(C,Pd_max,Pg_max,U)
 #xstar,iter = phase1_simplex(A, b) 
-#xstar,iter = run_simplex(A,b,g)
+xstar,iter = run_simplex(A,b,g)
 
 # Interior point solve   
 m,n = A.shape

@@ -140,7 +140,7 @@ def run_simplex(A,b,g):
 
     # Solving the problem
     print("phase2 starts")
-
+    #xstar = np.array([0,0,5,8])
     result = phase2_simplex(A,b,xstar,g,iter)
     print("phase2 done")
 

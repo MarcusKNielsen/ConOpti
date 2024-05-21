@@ -12,7 +12,7 @@ subject to A' x >= b
 Note it is not implemented with equality constrains 
 
 """
-
+ 
 def LPStandardForm(Al, bl, Au, bu, l, u):
     nAl, mAl = Al.shape
     nAu, mAu = Au.shape
@@ -64,7 +64,6 @@ min 0.5 x' H x + g' x
 subject to A' x ≤ b
 
 """
-
 
 def EqualityQPSolver(H, g, A, b, xk):
     n, m = A.shape

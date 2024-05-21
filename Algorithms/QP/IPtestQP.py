@@ -2,6 +2,7 @@ import numpy as np
 from InteriorPointQP2 import InteriorPointQP
 from scipy.io import loadmat
 import matplotlib.pyplot as plt
+from casadi import *
 
 data = loadmat(r"C:\Users\maria\OneDrive - Danmarks Tekniske Universitet\Kandidat\1_semester\Constrained optimization\ConOpti\Algorithms\QP\QP_Test.mat")
 
@@ -14,6 +15,22 @@ l_load = data["l"].squeeze().astype(float)
 u_load = data["u"].squeeze().astype(float)
 
 n = np.size(u_load)
+
+# Solve with casadi
+# Define the decision variables
+x = SX.sym("x",n)
+f = 1/2*dot(x,H_load@x) + dot(g,x)
+c = C_load.T@x
+
+# Define the problem
+nlp = {'x': x, 'f': f, 'g': c}
+
+# Create the solver
+solver = nlpsol('solver', 'ipopt', nlp)
+
+# Solve the problem
+r = solver(lbg=dl_load, ubg=du_load, lbx=l_load, ubx=u_load)
+x_opt = r['x']
 
 # Inequality constraints
 d = np.hstack([dl_load, -du_load, l_load, -u_load]).squeeze()
@@ -40,6 +57,13 @@ x0 = X[0, :]
 xmin = res["xmin"]
 print(res["converged"])
 print(res["iter"])
-print(res["min"])
+
+print("difference", np.max(np.abs(xmin-x_opt)))
+
+plt.figure(1)
+plt.plot(x_opt)
+plt.figure(2)
+plt.plot(xmin)
+plt.show()
 
 
