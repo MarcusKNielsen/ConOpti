@@ -1,11 +1,13 @@
 import numpy as np
 from numpy.linalg import norm
-from InteriorPointQP import InteriorPointQP, plotQP
+from InteriorPointQP import plotQP
+from InteriorPointQP import InteriorPointQP_v2 as InteriorPointQP
 
 
-def check_optimality(x,Jac_f,z,g,Jac_g,tol):
+def check_optimality(x,Jac_f,z,g,Jac_g,y,h,Jac_h,tol):
     
-    stationarity    = np.max(np.abs(Jac_f.T - Jac_g.T @ z)) < tol
+    stationarity    = np.max(np.abs(Jac_f.T - Jac_h.T @ y - Jac_g.T @ z)) < tol
+    primal_fea_eq   = np.max(np.abs(h)) < tol
     primal_fea_ineq = np.min(g) >= -tol
     dual_fea        = np.min(z) >= -tol
     complementarity = np.abs(np.dot(z, g)) < tol
@@ -13,19 +15,19 @@ def check_optimality(x,Jac_f,z,g,Jac_g,tol):
     return  stationarity & primal_fea_ineq & dual_fea & complementarity
 
 
-def line_search(x0,l,u,dx,f,df,g):
+def line_search(x0,l,u,dx,f,df,g,h):
     
     x = x0.copy()
     alpha = 1
     i = 1
     Stop = False
     
-    c = f(x) + u.T @ np.abs(np.minimum(0,g(x)))
-    b = df(x) @ dx - u.T @ np.abs(np.minimum(0,g(x)))
+    c = f(x) + l @ np.abs(h(x)) + u.T @ np.abs(np.minimum(0,g(x)))
+    b = df(x) @ dx - l @ np.abs(h(x)) - u.T @ np.abs(np.minimum(0,g(x)))
     
     while not Stop and i < 25:
         x = x0 + alpha * dx
-        phi = f(x) + u.T @ np.abs(np.minimum(0,g(x)))
+        phi = f(x) + l @ np.abs(h(x)) + u.T @ np.abs(np.minimum(0,g(x)))
         if phi <= c + 0.1 * b * alpha:
             Stop = True
         else:
@@ -36,11 +38,11 @@ def line_search(x0,l,u,dx,f,df,g):
     return alpha
 
 
-def BFGS_update(B,xnxt,xnow,znxt,df,dg):
+def BFGS_update(B,xnxt,xnow,znxt,ynxt,df,dg,dh):
     
     p = xnxt - xnow
-    dLnxt = df(xnxt).T - dg(xnxt).T @ znxt
-    dLnow = df(xnow).T - dg(xnow).T @ znxt
+    dLnxt = df(xnxt).T - dg(xnxt).T @ znxt - dh(xnxt).T @ ynxt
+    dLnow = df(xnow).T - dg(xnow).T @ znxt - dh(xnow).T @ ynxt
     q = dLnxt - dLnow
     
     temp = B @ p
@@ -60,7 +62,7 @@ def BFGS_update(B,xnxt,xnow,znxt,df,dg):
     
     return B
     
-def solveSQP_Line(x0,z0,y0,s0,f,g,df,dg,d2f=None,d2g=None,MaxIter = 100,tol=10**(-6)):   
+def solveSQP_Line(x0,z0,y0,s0,f,g,h,df,dg,dh,d2f=None,d2g=None,d2h=None,MaxIter = 100,tol=10**(-6)):   
     
     x = x0.copy()
     z = z0.copy()
@@ -77,13 +79,6 @@ def solveSQP_Line(x0,z0,y0,s0,f,g,df,dg,d2f=None,d2g=None,MaxIter = 100,tol=10**
     X = np.zeros([MaxIter+1,n_var])
     X[k,:] = x
 
-    #Z = np.zeros([MaxIter+1,n_ineq])
-    #Z[k,:] = z
-
-    #Y = np.zeros([MaxIter+1,n_eq])
-    #Y[k,:] = yk
-
-
     # Check for optimality (only inequality right now)
     converged = False
     
@@ -95,14 +90,14 @@ def solveSQP_Line(x0,z0,y0,s0,f,g,df,dg,d2f=None,d2g=None,MaxIter = 100,tol=10**
             if k == 0:
                 H = np.eye(n_var)
             else:
-                H = BFGS_update(H,x,X[k-1,:],z,df,dg)
+                H = BFGS_update(H,x,X[k-1,:],z,y,df,dg,dh)
         else:
             H = d2f(x) - np.sum(z[:, np.newaxis, np.newaxis] * d2g(x), axis=0)
         
         q = df(x).T
         
-        A = np.zeros([len(x),0])
-        b = np.array([])
+        A = dh(x).T
+        b = -h(x)
         
         C = dg(x).T
         d = -g(x)
@@ -117,7 +112,7 @@ def solveSQP_Line(x0,z0,y0,s0,f,g,df,dg,d2f=None,d2g=None,MaxIter = 100,tol=10**
         # Line search
         l = np.abs(y)
         u = np.abs(z)
-        alpha = line_search(x,l,u,results['xmin'],f,df,g)
+        alpha = line_search(x,l,u,results['xmin'],f,df,g,h)
         
         # update variables
         x += alpha*results['xmin']
@@ -126,7 +121,7 @@ def solveSQP_Line(x0,z0,y0,s0,f,g,df,dg,d2f=None,d2g=None,MaxIter = 100,tol=10**
         s += results["slack"]
         
         # Check convergence
-        converged = check_optimality(x,df(x),z,g(x),dg(x),tol)
+        converged = check_optimality(x,df(x),z,g(x),dg(x),y,h(x),dh(x),tol)
         
         # update counter
         k += 1

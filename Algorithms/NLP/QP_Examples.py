@@ -2,14 +2,10 @@ import numpy as np
 
 def QP_example(example,PrintFormat=False):
     
-    
-    
     if PrintFormat==True:
         print("\n \n")
         print("""min 0.5 x' H x + g' x \n subject to C' x >= d \n \n you are given H, g, C, d \n \n""")
         
-    
-    
     if example == 1:
         
         # QP problem

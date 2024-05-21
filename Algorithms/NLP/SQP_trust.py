@@ -12,11 +12,11 @@ def check_optimality(x,Jac_f,z,g,Jac_g,tol):
     
     return  stationarity & primal_fea_ineq & dual_fea & complementarity
 
-def BFGS_update_trust(B,xnxt,xnow,znxt,df,dg_xnxt):
+def BFGS_update_trust(B,xnxt,xnow,znxt,df,dg_xnow,dg_xnxt):
     
     p = xnxt - xnow
     dLnxt = df(xnxt).T - dg_xnxt.T @ znxt
-    dLnow = df(xnow).T - dg_xnxt.T @ znxt
+    dLnow = df(xnow).T - dg_xnow.T @ znxt
     q = dLnxt - dLnow
     
     temp = B @ p
@@ -100,6 +100,7 @@ def solveSQP_Trust(x0,z0,y0,s0,f,g,df,dg,d2f=None,d2g=None,MaxIter=100,tol=10**(
     b = np.array([])
     C = dg_exd(x,dg,n_var,n_ineq)
     d = g_exd(x,g,n_var,n_ineq,delta)
+    C_old = C.copy()
     
     while not converged and k < MaxIter and j < MaxIter:
         
@@ -109,7 +110,7 @@ def solveSQP_Trust(x0,z0,y0,s0,f,g,df,dg,d2f=None,d2g=None,MaxIter=100,tol=10**(
             if k == 0:
                 H = np.eye(n_var)
             else:
-                H = BFGS_update_trust(H,x,X[k-1,:],z,df,C.T)
+                H = BFGS_update_trust(H,x,X[k-1,:],z,df,C_old.T,C.T)
         else:
             H = d2f(x) - np.sum(z[:, np.newaxis, np.newaxis] * d2g(x), axis=0)
         
@@ -139,6 +140,9 @@ def solveSQP_Trust(x0,z0,y0,s0,f,g,df,dg,d2f=None,d2g=None,MaxIter=100,tol=10**(
             y  = results['lagrange_eq']
             z  = results['lagrange_ineq']
             s += results["slack"]
+            
+            # Save old C for BFGS
+            C_old = C.copy()
             
             # Update vectors and matrices
             q = df(x)
