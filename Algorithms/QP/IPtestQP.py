@@ -1,10 +1,13 @@
 import numpy as np
-from InteriorPointQP2 import InteriorPointQP
+from InteriorPointQP import InteriorPointQP_v2 as InteriorPointQP
 from scipy.io import loadmat
 import matplotlib.pyplot as plt
 from casadi import *
 
-data = loadmat(r"C:\Users\maria\OneDrive - Danmarks Tekniske Universitet\Kandidat\1_semester\Constrained optimization\ConOpti\Algorithms\QP\QP_Test.mat")
+# directory = r"C:\Users\maria\OneDrive - Danmarks Tekniske Universitet\Kandidat\1_semester\Constrained optimization\ConOpti\Algorithms\QP\QP_Test.mat"
+directory = r'/home/max/Documents/DTU/ConOpti/ConOpti/Algorithms/QP/QP_Test.mat'
+data = loadmat(directory)
+
 
 H_load = data["H"].squeeze().astype(float)
 g = data["g"].squeeze().astype(float)
@@ -46,7 +49,7 @@ def f(x1, x2):
     return 0.5 * x.T @ H_load @ x + g.T @ x
 
 MaxIter = 100
-tol = 1e-2
+tol = 1e-4
 
 # %% Interior-Point Algoritm
 x0 = np.linalg.solve(H_load, -g)

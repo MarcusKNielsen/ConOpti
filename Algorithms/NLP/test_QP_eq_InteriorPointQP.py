@@ -1,6 +1,6 @@
 import numpy as np
 from InteriorPointQP import plotQP_eq
-from InteriorPointQP import InteriorPointQP_v2 as InteriorPointQP
+from InteriorPointQP import InteriorPointQP
 
 x1 = -2
 x2 = 2
@@ -27,12 +27,12 @@ A = np.array([[ 1,-1],
 b = np.array([1.0,1.0])
 y = np.array([4.0,4.0])
 
-MaxIter = 100
+MaxIter = 3
 tol = 10**(-6)
 
 #%% Interior-Point Algorithm
 
-res = InteriorPointQP(H,g,A,b,C,d,x,y,z,s,MaxIter, tol)
+res = InteriorPointQP(H,g,A,b,C,d,x,y,z,s,MaxIter, tol, LDL = False)
 X = res['x_array']
 x0 = X[0,:]
 xmin = res['xmin']

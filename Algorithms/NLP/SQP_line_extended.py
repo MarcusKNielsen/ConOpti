@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.linalg import norm
 from InteriorPointQP import plotQP
-from InteriorPointQP import InteriorPointQP_v2 as InteriorPointQP
+from InteriorPointQP import InteriorPointQP as InteriorPointQP
 
 
 def check_optimality(x,Jac_f,z,g,Jac_g,y,h,Jac_h,tol):
