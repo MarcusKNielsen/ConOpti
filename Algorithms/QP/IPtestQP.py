@@ -1,5 +1,5 @@
 import numpy as np
-from InteriorPointQP import InteriorPointQP_v2 as InteriorPointQP
+from InteriorPointQP import InteriorPointQP
 from scipy.io import loadmat
 import matplotlib.pyplot as plt
 from casadi import *
