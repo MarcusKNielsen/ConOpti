@@ -27,7 +27,7 @@ A = np.array([[ 1,-1],
 b = np.array([1.0,1.0])
 y = np.array([4.0,4.0])
 
-MaxIter = 3
+MaxIter = 10
 tol = 10**(-6)
 
 #%% Interior-Point Algorithm

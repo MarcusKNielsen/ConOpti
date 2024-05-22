@@ -76,7 +76,7 @@ def InteriorPointQP(H,g,A,b,C,d,x0,y0,z0,s0,MaxIter = 100, tol = 10**(-6) ,LDL =
         ds_aff = - r_sz/z - (s * dz_aff)/z
         
         # Find larges affine step alpha
-        alpha_aff = min(np.concatenate([np.array([1]),(-z/dz_aff)[(-z/dz_aff)>0],(-s/ds_aff)[(-s/ds_aff)>0]]))
+        alpha_aff = min(np.concatenate([np.array([1]),(-z[dz_aff<0]/dz_aff[dz_aff<0]),(-s[ds_aff<0]/ds_aff[ds_aff<0])]))
         
         # Duality gap and centering parameter
         mu_aff = ((z + alpha_aff * dz_aff).T @ (s + alpha_aff * ds_aff)) / mc
@@ -101,7 +101,7 @@ def InteriorPointQP(H,g,A,b,C,d,x0,y0,z0,s0,MaxIter = 100, tol = 10**(-6) ,LDL =
         ds = -r_sz_bar/z - s * dz/z
         
         # Step length
-        alpha = min(np.concatenate([np.array([1]),(-z/dz)[(-z/dz)>0],(-s/ds)[(-s/ds)>0]]))
+        alpha = min(np.concatenate([np.array([1]),(-z[dz<0]/dz[dz<0]),(-s[ds<0]/ds[ds<0])]))
     
         
         # Update iterate
