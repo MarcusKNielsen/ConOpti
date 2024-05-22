@@ -105,7 +105,7 @@ def InteriorPointQP(H,g,A,b,C,d,x0,y0,z0,s0,MaxIter = 100, tol = 10**(-6) ,LDL =
     
         
         # Update iterate
-        nu = 0.9
+        nu = 0.995
         alpha_bar = nu*alpha 
         
         x += alpha_bar * dx
