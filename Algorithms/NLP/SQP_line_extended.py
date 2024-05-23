@@ -2,18 +2,21 @@ import numpy as np
 from numpy.linalg import norm
 from InteriorPointQP import plotQP
 from InteriorPointQP import InteriorPointQP as InteriorPointQP
-
+from himmelblau import *
 
 def check_optimality(x,Jac_f,z,g,Jac_g,y,h,Jac_h,tol):
     
+    small_val = np.array([10**(-15)])
+    h_exd = np.concatenate((h,small_val))
+    g_exd = np.concatenate((g,small_val))
+    
     stationarity    = np.max(np.abs(Jac_f.T - Jac_h.T @ y - Jac_g.T @ z)) < tol
-    primal_fea_eq   = np.max(np.abs(h)) < tol
-    primal_fea_ineq = np.min(g) >= -tol
+    primal_fea_eq   = np.max(np.abs(h_exd)) < tol
+    primal_fea_ineq = np.min(g_exd) >= -tol
     dual_fea        = np.min(z) >= -tol
     complementarity = np.abs(np.dot(z, g)) < tol
     
-    return  stationarity & primal_fea_ineq & dual_fea & complementarity
-
+    return  stationarity & primal_fea_eq & primal_fea_ineq & dual_fea & complementarity
 
 def line_search(x0,l,u,dx,f,df,g,h):
     
@@ -62,18 +65,18 @@ def BFGS_update(B,xnxt,xnow,znxt,ynxt,df,dg,dh):
     
     return B
     
-def solveSQP_Line(x0,z0,y0,s0,f,g,h,df,dg,dh,d2f=None,d2g=None,d2h=None,MaxIter = 100,tol=10**(-6)):   
+def solveSQP_Line(x0,z0,y0,s0,f,g,h,df,dg,dh,d2f=None,d2g=None,d2h=None,MaxIter = 100,tol=10**(-6), QPMaxIter = 100, QPtol = 10**(-2), LDL = True):   
     
     x = x0.copy()
     z = z0.copy()
     y = y0.copy()
     s = s0.copy()
     
-    n_var  = len(x) # Number of variables
-    #n_ineq = len(z) # Number of inequality constraints
-    #n_eq   = len(y) # Number of equality constraints
+    # Number of variables
+    n_var  = len(x) 
 
-    k = 0 # Iteration counter
+    # Iteration counter
+    k = 0 
 
     # Initialize arrays
     X = np.zeros([MaxIter+1,n_var])
@@ -82,32 +85,32 @@ def solveSQP_Line(x0,z0,y0,s0,f,g,h,df,dg,dh,d2f=None,d2g=None,d2h=None,MaxIter 
     # Check for optimality (only inequality right now)
     converged = False
     
+    # Initial evaluation
+    q = df(x).T
+    
+    A = dh(x).T
+    b = -h(x)
+    
+    C = dg(x).T
+    d = -g(x)
+    
     while not converged and k < MaxIter:
         
-        # Solve sub QP problem
         
+        # Compute Hessian
         if d2f==None and d2g==None:
             if k == 0:
                 H = np.eye(n_var)
             else:
                 H = BFGS_update(H,x,X[k-1,:],z,y,df,dg,dh)
         else:
-            H = d2f(x) - np.sum(z[:, np.newaxis, np.newaxis] * d2g(x), axis=0)
+            H = d2f(x) - np.sum(y[:, np.newaxis, np.newaxis] * d2h(x), axis=0) - np.sum(z[:, np.newaxis, np.newaxis] * d2g(x), axis=0)
         
-        q = df(x).T
-        
-        A = dh(x).T
-        b = -h(x)
-        
-        C = dg(x).T
-        d = -g(x)
-        
-        results = InteriorPointQP(H, q, A, b, C, d, x, y, z, s)
+        # Solve sub QP problem
+        results = InteriorPointQP(H, q, A, b, C, d, x, y, z, s, MaxIter=QPMaxIter, tol=QPtol, LDL = LDL)
         
         if results['converged'] != True:
             Exception("sub QP problem did not converge!")
-        
-        #plotQP(H, q, C, d,results['x_array'],title=f"iter={k}")
         
         # Line search
         l = np.abs(y)
@@ -119,6 +122,15 @@ def solveSQP_Line(x0,z0,y0,s0,f,g,h,df,dg,dh,d2f=None,d2g=None,d2h=None,MaxIter 
         y  = results['lagrange_eq']
         z  = results['lagrange_ineq']
         s += results["slack"]
+        
+        # Update vectors and matrices
+        q = df(x).T
+        
+        A = dh(x).T
+        b = -h(x)
+        
+        C = dg(x).T
+        d = -g(x)
         
         # Check convergence
         converged = check_optimality(x,df(x),z,g(x),dg(x),y,h(x),dh(x),tol)
@@ -140,6 +152,8 @@ def solveSQP_Line(x0,z0,y0,s0,f,g,h,df,dg,dh,d2f=None,d2g=None,d2h=None,MaxIter 
     results["converged"] = converged
     results["iter"] = k
     results["x_array"] = X
+    results["func_evals"] = k+1
+    results["Hessian_evals"] = k
     
     
     return results
