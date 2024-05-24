@@ -58,7 +58,7 @@ def phase2_simplex(A0,b0,x0,g0,iter0):
 
     B_set = np.where(np.abs(x)>tolerance)[0]
 
-    if B_set.size < m:
+    if B_set.size < m: 
         # Find indices where |x| == tolerance
         additional_indices = np.where(np.abs(x) < tolerance)[0]
         
@@ -81,9 +81,9 @@ def phase2_simplex(A0,b0,x0,g0,iter0):
     X = np.zeros([max_iter+1,len(x)])
     X[0,:] = x 
 
-    while not converged and iter < max_iter:
+    while not converged and iter < max_iter: 
         
-        mu = np.linalg.solve(B.T, g[B_set])
+        mu = np.linalg.solve(B.T, g[B_set]) 
         lam_N = g[N_set] - N.T @ mu 
 
         # Checking if all lambda values are larger than 0
@@ -149,7 +149,7 @@ def phase2_simplex(A0,b0,x0,g0,iter0):
     
         if iter == max_iter:
              return False
- 
+        
 
 def run_simplex(A,b,g):
     

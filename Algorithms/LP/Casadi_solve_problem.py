@@ -1,9 +1,7 @@
-import scipy.io
 import pandas as pd
 from casadi import *
 import numpy as np
 import matplotlib.pyplot as plt
-from LP_interiorPiont import InteriorPointLP
 
 def casadi_solve(C,Pd_max,Pg_max,U):
 

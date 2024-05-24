@@ -2,7 +2,7 @@
 import numpy as np 
 import matplotlib.pyplot as plt
 
-def plot_demand_supply_curve(Ud,Cg,xstar,idx):
+def plot_demand_supply_curve(Ud,Cg,xstar,idx,title = " "):
     
     Pd = xstar[:len(Ud)]
     Pg = xstar[len(Ud):len(Ud)+len(Cg)]
@@ -16,12 +16,13 @@ def plot_demand_supply_curve(Ud,Cg,xstar,idx):
 
     # Plotting 
     plt.figure(idx) 
-    plt.step(cum_Pd, Ud[sorted_demand_indices],where="post", label="Cumulative Demand")
-    plt.step(cum_Pg, Cg[sorted_supply_indices], where="post", label="Cumulative Supply")
+    plt.step(cum_Pd, Ud[sorted_demand_indices],where="post", label="Demand curve")
+    plt.step(cum_Pg, Cg[sorted_supply_indices], where="post", label="Supply curve")
+    plt.plot([0, max(cum_Pd)], [16, 16],"--r",label="Market clearing price")
     plt.xlabel("Energy Quantity (MWh)")
     plt.ylabel("Price ($/MWh)")
-    plt.title("Supply-Demand Curve")
+    plt.title(f"Supply-Demand Curve {title}")
     plt.legend()
-    plt.grid(True)
+    plt.grid(True) 
 
 

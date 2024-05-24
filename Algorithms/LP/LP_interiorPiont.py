@@ -180,6 +180,11 @@ def InteriorPointLP_simplified_mari(A,g,b,x,mu,lam,MaxIter=10000,tol=1e-9):
     rA = A@x-b
     rC = x*lam
 
+    # Saving of residuals
+    rL_save = np.array([np.max(np.abs(rL))])
+    rA_save = np.array([np.max(np.abs(rA))])
+    rC_save = np.array([np.max(np.abs(rC))])
+
     # Duality gap 
     s = np.sum(rC)/n 
     
@@ -260,6 +265,11 @@ def InteriorPointLP_simplified_mari(A,g,b,x,mu,lam,MaxIter=10000,tol=1e-9):
         rA = A@x-b
         rC = x*lam
 
+        # Saving
+        rL_save = np.append(rL_save,np.max(np.abs(rL)))
+        rA_save = np.append(rA_save,np.max(np.abs(rA)))
+        rC_save = np.append(rC_save,np.max(np.abs(rC)))
+
         # Duality gap 
         s = np.sum(rC)/n
         
@@ -274,7 +284,10 @@ def InteriorPointLP_simplified_mari(A,g,b,x,mu,lam,MaxIter=10000,tol=1e-9):
     results['X_results'] = Xres
     results['iterations'] = k
     results['Converged'] = converge
-      
+    results['rL'] = rL_save
+    results['rA'] = rA_save
+    results['rC'] = rC_save
+       
     return results
     
     

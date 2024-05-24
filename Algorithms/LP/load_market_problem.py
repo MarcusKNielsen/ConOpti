@@ -1,10 +1,6 @@
 import scipy.io
-import pandas as pd
 from casadi import *
 import numpy as np
-import matplotlib.pyplot as plt
-from LP_interiorPiont import InteriorPointLP
-from Casadi_solve_problem import casadi_solve
 
 def load_problem(directory):
     # Loading data
