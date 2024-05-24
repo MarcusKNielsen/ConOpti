@@ -32,7 +32,7 @@ tol = 10**(-2)
 
 #%% Interior-Point Algorithm
 
-res = IP_mariana(H,g,A,b,C,d,x,y,z,s,MaxIter, tol)
+res = IP_marcus(H,g,A,b,C,d,x,y,z,s,MaxIter, tol)
 X = res['X_results']
 x0 = X[0,:]
 xmin = res['xmin']
