@@ -42,7 +42,7 @@ def BFGS_update_trust(B,xnxt,xnow,znxt,ynxt,df,dg_xnow,dg_xnxt,dh_xnow,dh_xnxt):
     return B
 
 def radius_update(delta,rho,gamma,acceptstep,QP_failed):
-    delta_max = 3
+    delta_max = 1
     if QP_failed == True:
         delta = min(3*delta,delta_max)
     else:
@@ -80,16 +80,17 @@ def solveSQP_Trust(x0,z0,y0,s0,f,g,h,df,dg,dh,d2f=None,d2g=None,d2h=None,MaxIter
     
     k = 0 # accepts iteration counter
     j = 0 # while loop interation counter
+    f_evals = 0
 
     # Initialize arrays
     X = np.zeros([MaxIter+1,n_var])
     X[k,:] = x
 
-    # Check for optimality (only inequality right now)
+    # Check for optimality
     converged = False
     
     # Trust region radius
-    delta = 1
+    delta = 0.5
     
     z = np.zeros(n_ineq+2*n_var)
     z[:n_ineq] = z0.copy()
@@ -125,31 +126,19 @@ def solveSQP_Trust(x0,z0,y0,s0,f,g,h,df,dg,dh,d2f=None,d2g=None,d2h=None,MaxIter
 
         results = InteriorPointQP(H, q, A, b, C, d, x, y, z, s, MaxIter=QPMaxIter, tol=QPtol, LDL = LDL)
 
-        if results['converged'] != True:
-            Exception("sub QP problem did not converge!")
         
-#        plotQP_eq(H,q,C,d,A,b,X=results['x_array'],xlimits=[-10,10,-10,10])
+        #plotQP_eq(H,q,C,d,A,b,X=results['x_array'],xlimits=[-10,10,-10,10])
         
         # Step quality
         dx = results['xmin']
         fnow = f(x)
         fnxt = f(x+dx)
+        f_evals += 2
         m = 0.5 * dx.T @ H @ dx + q @ dx
         rho = (fnow-fnxt)/(-m)
         gamma = (fnow-fnxt)/fnow
 
-        if b.size != 0:
-            hnow = h(x)
-            hnxt = h(x+dx)
-            if np.max(np.abs(hnow)) > 10**(-16):
-                phi = max( (hnow-hnxt)/hnow )
-            else:
-                phi = - 10
-                
-            if phi >= gamma:
-                gamma = phi
-        
-        acceptstep = min(rho,gamma)>=0
+        acceptstep = min(rho,gamma)>0
         QP_failed = results["converged"] == False
         
         delta = radius_update(delta,rho,gamma,acceptstep,QP_failed)
@@ -198,8 +187,19 @@ def solveSQP_Trust(x0,z0,y0,s0,f,g,h,df,dg,dh,d2f=None,d2g=None,d2h=None,MaxIter
     results["iter"] = j
     results["x_array"] = X
     results["Nacceptstep"] = k
-    
+    results["obj_evals"] = f_evals
+    results["func_evals"] = k+1
+    results["Hessian_evals"] = j
     
     return results
 
-
+# if b.size != 0:
+#     hnow = h(x)
+#     hnxt = h(x+dx)
+#     if np.max(np.abs(hnow)) > 10**(-16):
+#         phi = max( (hnow-hnxt)/hnow )
+#     else:
+#         phi = -100
+        
+#     if phi >= gamma:
+        #         gamma = phi
