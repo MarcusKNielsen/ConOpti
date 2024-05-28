@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.optimize import linprog
+from time import perf_counter
 
 def phase1_simplex(A,b):
 
@@ -152,16 +152,18 @@ def phase2_simplex(A0,b0,x0,g0,iter0):
         
 
 def run_simplex(A,b,g):
-    
+     
     print("phase1 starts")
+    t = perf_counter()
     xstar,iter = phase1_simplex(A, b)
-    print("xstar:",xstar)
+    print("phase 1 time:", perf_counter()- t)
     print("phase1 done")
 
     # Solving the problem
     print("phase2 starts")
-    #xstar = np.array([0,0,5,8])
+    t = perf_counter()
     result = phase2_simplex(A,b,xstar,g,iter)
+    print("phase 2 time", perf_counter() -t)
     print("phase2 done")
 
     return result

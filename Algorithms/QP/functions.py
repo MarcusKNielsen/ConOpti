@@ -130,21 +130,6 @@ def EqualityQPSolver(H,g,A,b,solver):
 
     return x,lam
 
-def sensitivity(H,A):
-
-    n, m = A.shape
-
-    res_g = np.block([[np.array(np.identity(n))],[np.array(np.zeros((m,n)))]])
-    res_b = np.block([[np.array(np.zeros((n,m)))],[np.array(np.identity(m))]])
-
-    Mat = -inv(np.block([[H, -A], [-A.T, np.zeros((m, m))]]))
-
-    resg = Mat@res_g 
-    resb = Mat@res_b 
-
-    return resg,resb
-
-
 
 
 
