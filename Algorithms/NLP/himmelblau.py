@@ -125,8 +125,8 @@ def plotHimmelblau(X=None,ext=False,title=None):
     
     # Additional settings for the plot.
     plt.grid(c='k', ls='-', alpha=0.3)
-    plt.xlabel(r"$x_1$")
-    plt.ylabel(r"$x_2$")
+    plt.xlabel(r"$x_1$",fontsize=12)
+    plt.ylabel(r"$x_2$",fontsize=12)
     plt.xlim([x1min, x1max])
     plt.ylim([x2min, x2max])
     if title==None:
