@@ -6,7 +6,7 @@ from InteriorPointQP import InteriorPointQP, plotQP
 # objective function
 from QP_Examples import QP_example
 
-example = 2
+example = 1
 H,g,C,d,x = QP_example(example)
 
 # equality constraints

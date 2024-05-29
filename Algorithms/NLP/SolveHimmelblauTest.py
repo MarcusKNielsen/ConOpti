@@ -1,13 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from himmelblau import *
-from SQP_trust_extended import solveSQP_Trust
-from SQP_line_extended import solveSQP_Line
+from SQP_trust import solveSQP_Trust
+from SQP_line import solveSQP_Line
 
-#solver = "SQP_line_BFGS"
+solver = "SQP_line_BFGS"
 #solver = "SQP_line_Hess"
 #solver = "SQP_trust_BFGS"
-solver = "SQP_trust_Hess"
+#solver = "SQP_trust_Hess"
 
 if solver == "SQP_line_BFGS":
     title = r"Himmelblau's Test Problem (SQP, Line, BFGS)"

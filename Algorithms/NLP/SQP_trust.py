@@ -1,22 +1,27 @@
 import numpy as np
 from numpy.linalg import norm
-from InteriorPointQP import InteriorPointQP, plotQP
+from InteriorPointQP import InteriorPointQP, plotQP_eq
 from himmelblau import plotHimmelblau
 
-def check_optimality(x,Jac_f,z,g,Jac_g,tol):
+def check_optimality(x,Jac_f,z,g,Jac_g,y,h,Jac_h,tol):
     
-    stationarity    = np.max(np.abs(Jac_f.T - Jac_g.T @ z)) < tol
-    primal_fea_ineq = np.min(g) >= -tol
+    small_val = np.array([10**(-15)])
+    h_exd = np.concatenate((h,small_val))
+    g_exd = np.concatenate((g,small_val))
+    
+    stationarity    = np.max(np.abs(Jac_f.T - Jac_h.T @ y - Jac_g.T @ z)) < tol
+    primal_fea_eq   = np.max(np.abs(h_exd)) < tol
+    primal_fea_ineq = np.min(g_exd) >= -tol
     dual_fea        = np.min(z) >= -tol
     complementarity = np.abs(np.dot(z, g)) < tol
     
-    return  stationarity & primal_fea_ineq & dual_fea & complementarity
+    return  stationarity & primal_fea_eq & primal_fea_ineq & dual_fea & complementarity
 
-def BFGS_update_trust(B,xnxt,xnow,znxt,df,dg_xnow,dg_xnxt):
+def BFGS_update_trust(B,xnxt,xnow,znxt,ynxt,df,dg_xnow,dg_xnxt,dh_xnow,dh_xnxt):
     
     p = xnxt - xnow
-    dLnxt = df(xnxt).T - dg_xnxt.T @ znxt
-    dLnow = df(xnow).T - dg_xnow.T @ znxt
+    dLnxt = df(xnxt).T - dg_xnxt.T @ znxt - dh_xnxt.T @ ynxt
+    dLnow = df(xnow).T - dg_xnow.T @ znxt - dh_xnow.T @ ynxt
     q = dLnxt - dLnow
     
     temp = B @ p
@@ -37,7 +42,7 @@ def BFGS_update_trust(B,xnxt,xnow,znxt,df,dg_xnow,dg_xnxt):
     return B
 
 def radius_update(delta,rho,gamma,acceptstep,QP_failed):
-    delta_max = 3
+    delta_max = 1
     if QP_failed == True:
         delta = min(3*delta,delta_max)
     else:
@@ -49,7 +54,7 @@ def radius_update(delta,rho,gamma,acceptstep,QP_failed):
     return delta
     
 
-def solveSQP_Trust(x0,z0,y0,s0,f,g,df,dg,d2f=None,d2g=None,MaxIter=100,tol=10**(-6)):   
+def solveSQP_Trust(x0,z0,y0,s0,f,g,h,df,dg,dh,d2f=None,d2g=None,d2h=None,MaxIter=100,tol=10**(-6), QPMaxIter = 100, QPtol = 10**(-2), LDL = True):   
     
     n_var  = len(x0) # Number of variables
     n_ineq = len(z0) # Number of inequality constraints
@@ -75,16 +80,17 @@ def solveSQP_Trust(x0,z0,y0,s0,f,g,df,dg,d2f=None,d2g=None,MaxIter=100,tol=10**(
     
     k = 0 # accepts iteration counter
     j = 0 # while loop interation counter
+    f_evals = 0
 
     # Initialize arrays
     X = np.zeros([MaxIter+1,n_var])
     X[k,:] = x
 
-    # Check for optimality (only inequality right now)
+    # Check for optimality
     converged = False
     
     # Trust region radius
-    delta = 1
+    delta = 0.5
     
     z = np.zeros(n_ineq+2*n_var)
     z[:n_ineq] = z0.copy()
@@ -96,13 +102,15 @@ def solveSQP_Trust(x0,z0,y0,s0,f,g,df,dg,d2f=None,d2g=None,MaxIter=100,tol=10**(
     
     # Initial evaluation
     q = df(x)
-    A = np.zeros([len(x),0])
-    b = np.array([])
+    A = dh(x).T
+    b = -h(x)
     C = dg_exd(x,dg,n_var,n_ineq)
     d = g_exd(x,g,n_var,n_ineq,delta)
     C_old = C.copy()
+    A_old = A.copy()
     
     while not converged and k < MaxIter and j < MaxIter:
+        
         
         # Solve sub QP problem
         
@@ -110,25 +118,26 @@ def solveSQP_Trust(x0,z0,y0,s0,f,g,df,dg,d2f=None,d2g=None,MaxIter=100,tol=10**(
             if k == 0:
                 H = np.eye(n_var)
             else:
-                H = BFGS_update_trust(H,x,X[k-1,:],z,df,C_old.T,C.T)
+                H = BFGS_update_trust(H,x,X[k-1,:],z,y,df,C_old.T,C.T,A_old.T,A.T)
+
         else:
-            H = d2f(x) - np.sum(z[:, np.newaxis, np.newaxis] * d2g(x), axis=0)
+            H = d2f(x) - np.sum(y[:, np.newaxis, np.newaxis] * d2h(x), axis=0) - np.sum(z[:n_var][:, np.newaxis, np.newaxis] * d2g(x), axis=0)
         
 
-        results = InteriorPointQP(H, q, A, b, C, d, x, y, z, s)
+        results = InteriorPointQP(H, q, A, b, C, d, x, y, z, s, MaxIter=QPMaxIter, tol=QPtol, LDL = LDL)
+
         
-        if results['converged'] != True:
-            Exception("sub QP problem did not converge!")
+        #plotQP_eq(H,q,C,d,A,b,X=results['x_array'],xlimits=[-10,10,-10,10])
         
-        #plotQP(H, q, C, d,results['x_array'],title=f"iter={k}")
-        
-        # Step quality
+        # Accept or Reject Step
         dx = results['xmin']
         fnow = f(x)
         fnxt = f(x+dx)
+        f_evals += 2
         m = 0.5 * dx.T @ H @ dx + q @ dx
         rho = (fnow-fnxt)/(-m)
         gamma = (fnow-fnxt)/fnow
+
         acceptstep = min(rho,gamma)>0
         QP_failed = results["converged"] == False
         
@@ -143,17 +152,17 @@ def solveSQP_Trust(x0,z0,y0,s0,f,g,df,dg,d2f=None,d2g=None,MaxIter=100,tol=10**(
             
             # Save old C for BFGS
             C_old = C.copy()
+            A_old = A.copy()
             
             # Update vectors and matrices
             q = df(x)
-            A = np.zeros([len(x),0])
-            b = np.array([])
+            A = dh(x).T
+            b = -h(x)
             C = dg_exd(x,dg,n_var,n_ineq)
             d = g_exd(x,g,n_var,n_ineq,delta)
             
             # Check convergence
-            converged = check_optimality(x,q,z,-d,C.T,tol)
-            
+            converged = check_optimality(x,q,z[:n_var],g(x),C.T[:n_var,:n_var],y,h(x),A.T,tol)
             # update counter
             k += 1
             
@@ -163,7 +172,7 @@ def solveSQP_Trust(x0,z0,y0,s0,f,g,df,dg,d2f=None,d2g=None,MaxIter=100,tol=10**(
         else:
             d = g_exd(x,g,n_var,n_ineq,delta)
 
-        #plotHimmelblau(X=X[:(k+1),:])
+#        plotHimmelblau(X=X[:(k+1),:],ext=True)
         j += 1
     
     
@@ -178,8 +187,19 @@ def solveSQP_Trust(x0,z0,y0,s0,f,g,df,dg,d2f=None,d2g=None,MaxIter=100,tol=10**(
     results["iter"] = j
     results["x_array"] = X
     results["Nacceptstep"] = k
-    
+    results["obj_evals"] = f_evals
+    results["func_evals"] = k+1
+    results["Hessian_evals"] = j
     
     return results
 
-
+# if b.size != 0:
+#     hnow = h(x)
+#     hnxt = h(x+dx)
+#     if np.max(np.abs(hnow)) > 10**(-16):
+#         phi = max( (hnow-hnxt)/hnow )
+#     else:
+#         phi = -100
+        
+#     if phi >= gamma:
+        #         gamma = phi

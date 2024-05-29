@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from himmelblau import *
-from SQP_line_extended import solveSQP_Line
+from SQP_line import solveSQP_Line
 
 solver = "SQP_line_BFGS"
 
@@ -16,7 +16,7 @@ z = np.array([1.0,1.0] , dtype=float)*1
 s = np.array([1.0,1.0] , dtype=float)*2
 
 
-xs = np.array([[-3,0],[0.7, 0.7],[3.7 , 3.7]],dtype=float)
+xs = np.array([[0.7, 0.7],[3.7 , 3.7]],dtype=float)
 colors = ["red","gold","magenta","springgreen"]
 labels = [r"$x_0 = (0.7,0.7)^\top$", r"$x_0 = (3.7 , 3.7)^\top$"]
 
