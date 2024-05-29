@@ -79,7 +79,6 @@ def dh_ext(x):
     
     return J
 
-
 def plotHimmelblau(X=None,ext=False,title=None):
     def objective(x1,x2):
         x = np.array([x1,x2])

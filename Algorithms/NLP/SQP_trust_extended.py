@@ -129,7 +129,7 @@ def solveSQP_Trust(x0,z0,y0,s0,f,g,h,df,dg,dh,d2f=None,d2g=None,d2h=None,MaxIter
         
         #plotQP_eq(H,q,C,d,A,b,X=results['x_array'],xlimits=[-10,10,-10,10])
         
-        # Step quality
+        # Accept or Reject Step
         dx = results['xmin']
         fnow = f(x)
         fnxt = f(x+dx)

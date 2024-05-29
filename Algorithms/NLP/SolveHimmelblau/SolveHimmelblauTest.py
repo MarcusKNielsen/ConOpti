@@ -58,6 +58,8 @@ for i in range(4):
     iterations = results["iter"]
     print(f"converged = {converged}")
     print(f"iterations = {iterations}")
+    print(f"x* = {X[-1]}")
+    print(f"f(x*) = {f(X[-1])}")
     plt.plot(X[:,0],X[:,1],"o-",color=color)
     x1, x2 = X[:,0], X[:,1]
     plt.plot(x1[0],x2[0],"x",color=color,markersize=15,label=label)

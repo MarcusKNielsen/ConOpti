@@ -81,9 +81,6 @@ def solveSQP_Line(x0,z0,y0,s0,f,g,h,df,dg,dh,d2f=None,d2g=None,d2h=None,MaxIter 
     # Initialize arrays
     X = np.zeros([MaxIter+1,n_var])
     X[k,:] = x
-
-    # Check for optimality (only inequality right now)
-    converged = False
     
     # Initial evaluation
     q = df(x).T
@@ -93,6 +90,9 @@ def solveSQP_Line(x0,z0,y0,s0,f,g,h,df,dg,dh,d2f=None,d2g=None,d2h=None,MaxIter 
     
     C = dg(x).T
     d = -g(x)
+    
+    # Check for optimality
+    converged = check_optimality(x,df(x),z,g(x),dg(x),y,h(x),dh(x),tol)
     
     while not converged and k < MaxIter:
         
