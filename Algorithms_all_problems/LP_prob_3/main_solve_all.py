@@ -7,6 +7,7 @@ from Casadi_solve_problem import casadi_solve
 from plot_curve_LP import plot_demand_supply_curve
 from LP_interiorPiont import InteriorPointLP
 from time import perf_counter
+from matplotlib.ticker import LogLocator
 
 directory = r"C:\Users\maria\OneDrive - Danmarks Tekniske Universitet\Kandidat\1_semester\Constrained optimization\ConOpti\Algorithms\LP\LP_Test.mat"
 A,g,b,U,C,Pd_max,Pg_max = load_problem(directory)
@@ -58,6 +59,9 @@ ax[2].set_xlabel("Iterations",fontsize=14)
 ax[2].set_ylabel(r"$\log(\Vert r_C\Vert_\infty)$",fontsize=14)
 ax[2].legend(fontsize=14)
 fig.suptitle("KKT residuals as functions of iterations")
+ax[0].yaxis.set_major_locator(LogLocator(base=10.0, numticks=5))
+ax[1].yaxis.set_major_locator(LogLocator(base=10.0, numticks=5))
+ax[2].yaxis.set_major_locator(LogLocator(base=10.0, numticks=5))
 plt.tight_layout(rect=[0, 0, 1, 0.96]) 
 plt.show()
 
