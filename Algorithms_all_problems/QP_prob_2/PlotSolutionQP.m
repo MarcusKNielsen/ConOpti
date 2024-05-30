@@ -70,6 +70,6 @@ ylabel('Height [cm]')
 title('Outputs')
 xlim([T(1) T(end)])
 legend('$z_1$','$r_1$','$z_2$','$r_2$')
-saveas(gcf,'x_optPASQP','pdf')
+saveas(gcf,'x_optIP','pdf')
 
 end
